@@ -78,23 +78,21 @@ fun LoginScreen() {
         ) {
             Spacer(modifier = Modifier.height(120.dp))
 
-            Text(
-                text = "São João",
-                color = Color.White,
-                fontSize = 42.sp,
-                fontWeight = FontWeight.Bold
+            Image(
+                painter = painterResource(id = R.drawable.logo),
+                contentDescription = "Logo São João",
+                modifier = Modifier
+                    .width(290.dp)
+                    .offset(y = (-70).dp)
             )
 
-            Text(
-                text = "em Arcoverde",
-                color = Color(0xFFFFC107),
-                fontSize = 20.sp
-            )
+            Spacer(modifier = Modifier.height(40.dp))
 
             Spacer(modifier = Modifier.height(80.dp))
 
             Text(
-                text = "Digite seu nome",
+                text = "Para começar, conta pra gente \n" +
+                        "qual é seu nome:",
                 color = Color.White,
                 fontSize = 18.sp,
                 modifier = Modifier.align(Alignment.Start)
