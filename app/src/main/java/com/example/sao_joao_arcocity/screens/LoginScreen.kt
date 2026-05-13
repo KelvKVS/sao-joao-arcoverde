@@ -139,7 +139,9 @@ fun LoginScreen(
 )
 @Composable
 fun LoginScreenPreview() {
+
     Sao_joao_arcocityTheme {
+
         LoginScreen(
             onEntrar = {}
         )

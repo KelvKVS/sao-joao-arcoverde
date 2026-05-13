@@ -1,23 +1,24 @@
 package com.example.sao_joao_arcocity.screens
 
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -34,7 +35,11 @@ data class DiaEvento(
 )
 
 @Composable
-fun HomeScreen(nome: String) {
+fun HomeScreen(
+    nome: String,
+    onIrProgramacao: () -> Unit,
+    onIrLive: () -> Unit
+) {
 
     val dias = listOf(
         DiaEvento("21 JUN", "Sexta", true),
@@ -130,10 +135,6 @@ fun HomeScreen(nome: String) {
                     )
                 }
             }
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-
 
             Spacer(modifier = Modifier.height(18.dp))
 
@@ -312,19 +313,40 @@ fun HomeScreen(nome: String) {
         }
 
         BottomBar(
-            modifier = Modifier.align(Alignment.BottomCenter)
+            modifier = Modifier.align(Alignment.BottomCenter),
+
+            telaAtual = "home",
+
+            onHomeClick = { },
+
+            onProgramacaoClick = {
+                onIrProgramacao()
+            },
+
+            onLiveClick = {
+                onIrLive()
+            }
         )
     }
 }
 
 @Composable
 fun BottomBar(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+
+    telaAtual: String,
+
+    onHomeClick: () -> Unit,
+
+    onProgramacaoClick: () -> Unit,
+
+    onLiveClick: () -> Unit
 ) {
 
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .navigationBarsPadding()
             .height(82.dp)
             .background(
                 Color(0xCC0B0F14)
@@ -340,27 +362,36 @@ fun BottomBar(
             BottomItem(
                 icon = R.drawable.home,
                 title = "Home",
-                ativo = true
+                ativo = telaAtual == "home",
+                onClick = onHomeClick
             )
 
             BottomItem(
                 icon = R.drawable.calendar,
-                title = "Programação"
+                title = "Programação",
+                ativo = telaAtual == "programacao",
+                onClick = onProgramacaoClick
             )
 
             BottomItem(
                 icon = R.drawable.live,
-                title = "Live"
+                title = "Live",
+                ativo = telaAtual == "live",
+                onClick = onLiveClick
             )
 
             BottomItem(
                 icon = R.drawable.location,
-                title = "Pontos"
+                title = "Pontos",
+                ativo = false,
+                onClick = { }
             )
 
             BottomItem(
                 icon = R.drawable.info,
-                title = "Sobre"
+                title = "Sobre",
+                ativo = false,
+                onClick = { }
             )
         }
     }
@@ -370,11 +401,16 @@ fun BottomBar(
 fun BottomItem(
     icon: Int,
     title: String,
-    ativo: Boolean = false
+    ativo: Boolean = false,
+    onClick: () -> Unit
 ) {
 
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+
+        modifier = Modifier.clickable {
+            onClick()
+        }
     ) {
 
         Image(
@@ -412,7 +448,9 @@ fun HomePreview() {
     Sao_joao_arcocityTheme {
 
         HomeScreen(
-            nome = "usuario"
+            nome = "usuario",
+            onIrProgramacao = {},
+            onIrLive = {}
         )
     }
 }

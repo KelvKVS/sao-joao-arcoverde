@@ -10,7 +10,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.example.sao_joao_arcocity.screens.HomeScreen
+import com.example.sao_joao_arcocity.screens.LiveScreen
 import com.example.sao_joao_arcocity.screens.LoginScreen
+import com.example.sao_joao_arcocity.screens.ProgramacaoScreen
 import com.example.sao_joao_arcocity.ui.theme.Sao_joao_arcocityTheme
 
 class MainActivity : ComponentActivity() {
@@ -21,7 +23,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
+
             Sao_joao_arcocityTheme {
+
                 App()
             }
         }
@@ -30,6 +34,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun App() {
+
     var tela by remember {
         mutableStateOf("login")
     }
@@ -38,14 +43,66 @@ fun App() {
         mutableStateOf("")
     }
 
-    if (tela == "home") {
-        HomeScreen(nome = nomeUsuario)
-    } else {
-        LoginScreen(
-            onEntrar = { nome ->
-                nomeUsuario = if (nome.isBlank()) "usuario" else nome
-                tela = "home"
-            }
-        )
+    when (tela) {
+
+        "home" -> {
+
+            HomeScreen(
+                nome = nomeUsuario,
+
+                onIrProgramacao = {
+                    tela = "programacao"
+                },
+
+                onIrLive = {
+                    tela = "live"
+                }
+            )
+        }
+
+        "programacao" -> {
+
+            ProgramacaoScreen(
+
+                onIrHome = {
+                    tela = "home"
+                },
+
+                onIrLive = {
+                    tela = "live"
+                }
+            )
+        }
+
+        "live" -> {
+
+            LiveScreen(
+
+                onIrHome = {
+                    tela = "home"
+                },
+
+                onIrProgramacao = {
+                    tela = "programacao"
+                }
+            )
+        }
+
+        else -> {
+
+            LoginScreen(
+
+                onEntrar = { nome ->
+
+                    nomeUsuario =
+                        if (nome.isBlank())
+                            "usuario"
+                        else
+                            nome
+
+                    tela = "home"
+                }
+            )
+        }
     }
 }
