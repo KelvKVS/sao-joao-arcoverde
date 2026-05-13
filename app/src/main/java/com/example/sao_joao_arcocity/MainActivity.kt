@@ -4,14 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import com.example.sao_joao_arcocity.screens.HomeScreen
 import com.example.sao_joao_arcocity.screens.LiveScreen
 import com.example.sao_joao_arcocity.screens.LoginScreen
+import com.example.sao_joao_arcocity.screens.PontosScreen
 import com.example.sao_joao_arcocity.screens.ProgramacaoScreen
 import com.example.sao_joao_arcocity.ui.theme.Sao_joao_arcocityTheme
 
@@ -56,6 +53,10 @@ fun App() {
 
                 onIrLive = {
                     tela = "live"
+                },
+
+                onIrPontos = {
+                    tela = "pontos"
                 }
             )
         }
@@ -70,6 +71,10 @@ fun App() {
 
                 onIrLive = {
                     tela = "live"
+                },
+
+                onIrPontos = {
+                    tela = "pontos"
                 }
             )
         }
@@ -84,6 +89,28 @@ fun App() {
 
                 onIrProgramacao = {
                     tela = "programacao"
+                },
+
+                onIrPontos = {
+                    tela = "pontos"
+                }
+            )
+        }
+
+        "pontos" -> {
+
+            PontosScreen(
+
+                onIrHome = {
+                    tela = "home"
+                },
+
+                onIrProgramacao = {
+                    tela = "programacao"
+                },
+
+                onIrLive = {
+                    tela = "live"
                 }
             )
         }

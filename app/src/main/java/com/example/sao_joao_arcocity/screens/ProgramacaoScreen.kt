@@ -38,7 +38,8 @@ data class EventoProgramacao(
 @Composable
 fun ProgramacaoScreen(
     onIrHome: () -> Unit,
-    onIrLive: () -> Unit
+    onIrLive: () -> Unit,
+    onIrPontos: () -> Unit
 ) {
 
     var pesquisa by remember {
@@ -354,6 +355,10 @@ fun ProgramacaoScreen(
 
             onLiveClick = {
                 onIrLive()
+            },
+
+            onpontosClick = {
+                onIrPontos()
             }
         )
     }
@@ -370,7 +375,8 @@ fun ProgramacaoPreview() {
 
         ProgramacaoScreen(
             onIrHome = {},
-            onIrLive = {}
+            onIrLive = {},
+            onIrPontos = {}
         )
     }
 }

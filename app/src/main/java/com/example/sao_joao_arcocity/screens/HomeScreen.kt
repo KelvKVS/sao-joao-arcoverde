@@ -38,7 +38,8 @@ data class DiaEvento(
 fun HomeScreen(
     nome: String,
     onIrProgramacao: () -> Unit,
-    onIrLive: () -> Unit
+    onIrLive: () -> Unit,
+    onIrPontos: () -> Unit
 ) {
 
     val dias = listOf(
@@ -325,6 +326,10 @@ fun HomeScreen(
 
             onLiveClick = {
                 onIrLive()
+            },
+
+            onpontosClick = {
+                onIrPontos()
             }
         )
     }
@@ -340,7 +345,8 @@ fun BottomBar(
 
     onProgramacaoClick: () -> Unit,
 
-    onLiveClick: () -> Unit
+    onLiveClick: () -> Unit,
+    onpontosClick: () -> Unit
 ) {
 
     Box(
@@ -383,8 +389,8 @@ fun BottomBar(
             BottomItem(
                 icon = R.drawable.location,
                 title = "Pontos",
-                ativo = false,
-                onClick = { }
+                ativo = telaAtual == "pontos",
+                onClick = onpontosClick
             )
 
             BottomItem(
@@ -450,7 +456,8 @@ fun HomePreview() {
         HomeScreen(
             nome = "usuario",
             onIrProgramacao = {},
-            onIrLive = {}
+            onIrLive = {},
+            onIrPontos = {}
         )
     }
 }

@@ -33,7 +33,8 @@ data class LiveEvento(
 @Composable
 fun LiveScreen(
     onIrHome: () -> Unit,
-    onIrProgramacao: () -> Unit
+    onIrProgramacao: () -> Unit,
+    onIrPontos: () -> Unit
 ) {
 
     val eventos = listOf(
@@ -252,7 +253,9 @@ fun LiveScreen(
 
         BottomBar(
             modifier = Modifier.align(Alignment.BottomCenter),
+
             telaAtual = "live",
+
             onHomeClick = {
                 onIrHome()
             },
@@ -261,7 +264,11 @@ fun LiveScreen(
                 onIrProgramacao()
             },
 
-            onLiveClick = { }
+            onLiveClick = { },
+
+            onpontosClick = {
+                onIrPontos()
+            }
         )
     }
 }
@@ -277,7 +284,8 @@ fun LivePreview() {
 
         LiveScreen(
             onIrHome = {},
-            onIrProgramacao = {}
+            onIrProgramacao = {},
+            onIrPontos = {}
         )
     }
 }
