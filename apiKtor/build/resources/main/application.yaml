@@ -1,0 +1,9 @@
+ktor:
+  deployment:
+    port: 8080
+  application:
+    modules:
+      - com.saojoao.HttpKt.configureHttp
+      - com.saojoao.SerializationKt.configureSerialization
+      - com.saojoao.StatusPagesKt.configureStatusPages
+      - com.saojoao.RoutingKt.configureRouting
