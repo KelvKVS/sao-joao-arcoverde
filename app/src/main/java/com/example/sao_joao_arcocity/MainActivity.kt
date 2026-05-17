@@ -12,6 +12,7 @@ import com.example.sao_joao_arcocity.screens.LoginScreen
 import com.example.sao_joao_arcocity.screens.PontoCidade
 import com.example.sao_joao_arcocity.screens.PontosScreen
 import com.example.sao_joao_arcocity.screens.ProgramacaoScreen
+import com.example.sao_joao_arcocity.screens.RotaMapaScreen
 import com.example.sao_joao_arcocity.ui.theme.Sao_joao_arcocityTheme
 
 class MainActivity : ComponentActivity() {
@@ -49,67 +50,33 @@ fun App() {
         "home" -> {
             HomeScreen(
                 nome = nomeUsuario,
-
-                onIrProgramacao = {
-                    tela = "programacao"
-                },
-
-                onIrLive = {
-                    tela = "live"
-                },
-
-                onIrPontos = {
-                    tela = "pontos"
-                }
+                onIrProgramacao = { tela = "programacao" },
+                onIrLive = { tela = "live" },
+                onIrPontos = { tela = "pontos" }
             )
         }
 
         "programacao" -> {
             ProgramacaoScreen(
-                onIrHome = {
-                    tela = "home"
-                },
-
-                onIrLive = {
-                    tela = "live"
-                },
-
-                onIrPontos = {
-                    tela = "pontos"
-                }
+                onIrHome = { tela = "home" },
+                onIrLive = { tela = "live" },
+                onIrPontos = { tela = "pontos" }
             )
         }
 
         "live" -> {
             LiveScreen(
-                onIrHome = {
-                    tela = "home"
-                },
-
-                onIrProgramacao = {
-                    tela = "programacao"
-                },
-
-                onIrPontos = {
-                    tela = "pontos"
-                }
+                onIrHome = { tela = "home" },
+                onIrProgramacao = { tela = "programacao" },
+                onIrPontos = { tela = "pontos" }
             )
         }
 
         "pontos" -> {
             PontosScreen(
-                onIrHome = {
-                    tela = "home"
-                },
-
-                onIrProgramacao = {
-                    tela = "programacao"
-                },
-
-                onIrLive = {
-                    tela = "live"
-                },
-
+                onIrHome = { tela = "home" },
+                onIrProgramacao = { tela = "programacao" },
+                onIrLive = { tela = "live" },
                 onAbrirDetalhe = { ponto ->
                     pontoSelecionado = ponto
                     tela = "detalhePonto"
@@ -121,21 +88,21 @@ fun App() {
             pontoSelecionado?.let { ponto ->
                 DetalhePontoScreen(
                     ponto = ponto,
+                    onVoltar = { tela = "pontos" },
+                    onIrHome = { tela = "home" },
+                    onIrProgramacao = { tela = "programacao" },
+                    onIrLive = { tela = "live" },
+                    onVerMapa = { tela = "rotaMapa" }
+                )
+            }
+        }
 
-                    onVoltar = {
-                        tela = "pontos"
-                    },
-
-                    onIrHome = {
-                        tela = "home"
-                    },
-
-                    onIrProgramacao = {
-                        tela = "programacao"
-                    },
-
-                    onIrLive = {
-                        tela = "live"
+        "rotaMapa" -> {
+            pontoSelecionado?.let { ponto ->
+                RotaMapaScreen(
+                    ponto = ponto,
+                    onFechar = {
+                        tela = "detalhePonto"
                     }
                 )
             }
@@ -145,10 +112,7 @@ fun App() {
             LoginScreen(
                 onEntrar = { nome ->
                     nomeUsuario =
-                        if (nome.isBlank())
-                            "usuario"
-                        else
-                            nome
+                        if (nome.isBlank()) "usuario" else nome
 
                     tela = "home"
                 }

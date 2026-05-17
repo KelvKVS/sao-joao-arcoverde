@@ -30,7 +30,8 @@ fun DetalhePontoScreen(
     onVoltar: () -> Unit,
     onIrHome: () -> Unit,
     onIrProgramacao: () -> Unit,
-    onIrLive: () -> Unit
+    onIrLive: () -> Unit,
+    onVerMapa: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -57,15 +58,24 @@ fun DetalhePontoScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "<",
-                    color = Color.White,
-                    fontSize = 30.sp,
+                Box(
                     modifier = Modifier
+                        .size(42.dp)
                         .clip(CircleShape)
-                        .clickable { onVoltar() }
-                        .padding(8.dp)
-                )
+                        .background(Color.White.copy(alpha = 0.08f))
+                        .clickable {
+                            onVoltar()
+                        },
+
+                    contentAlignment = Alignment.Center
+                ) {
+
+                    Image(
+                        painter = painterResource(id = R.drawable.arrow),
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
 
                 Text(
                     text = "♡",
@@ -146,6 +156,7 @@ fun DetalhePontoScreen(
 
             Button(
                 onClick = {
+                    onVerMapa()
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFFFC107)
@@ -233,7 +244,8 @@ fun DetalhePontoPreview() {
             onVoltar = {},
             onIrHome = {},
             onIrProgramacao = {},
-            onIrLive = {}
+            onIrLive = {},
+            onVerMapa = {}
         )
     }
 }
