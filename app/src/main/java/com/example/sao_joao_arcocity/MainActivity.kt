@@ -5,9 +5,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.*
+import com.example.sao_joao_arcocity.screens.DetalhePontoScreen
 import com.example.sao_joao_arcocity.screens.HomeScreen
 import com.example.sao_joao_arcocity.screens.LiveScreen
 import com.example.sao_joao_arcocity.screens.LoginScreen
+import com.example.sao_joao_arcocity.screens.PontoCidade
 import com.example.sao_joao_arcocity.screens.PontosScreen
 import com.example.sao_joao_arcocity.screens.ProgramacaoScreen
 import com.example.sao_joao_arcocity.ui.theme.Sao_joao_arcocityTheme
@@ -20,9 +22,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-
             Sao_joao_arcocityTheme {
-
                 App()
             }
         }
@@ -40,10 +40,13 @@ fun App() {
         mutableStateOf("")
     }
 
+    var pontoSelecionado by remember {
+        mutableStateOf<PontoCidade?>(null)
+    }
+
     when (tela) {
 
         "home" -> {
-
             HomeScreen(
                 nome = nomeUsuario,
 
@@ -62,9 +65,7 @@ fun App() {
         }
 
         "programacao" -> {
-
             ProgramacaoScreen(
-
                 onIrHome = {
                     tela = "home"
                 },
@@ -80,9 +81,7 @@ fun App() {
         }
 
         "live" -> {
-
             LiveScreen(
-
                 onIrHome = {
                     tela = "home"
                 },
@@ -98,9 +97,7 @@ fun App() {
         }
 
         "pontos" -> {
-
             PontosScreen(
-
                 onIrHome = {
                     tela = "home"
                 },
@@ -111,16 +108,42 @@ fun App() {
 
                 onIrLive = {
                     tela = "live"
+                },
+
+                onAbrirDetalhe = { ponto ->
+                    pontoSelecionado = ponto
+                    tela = "detalhePonto"
                 }
             )
         }
 
+        "detalhePonto" -> {
+            pontoSelecionado?.let { ponto ->
+                DetalhePontoScreen(
+                    ponto = ponto,
+
+                    onVoltar = {
+                        tela = "pontos"
+                    },
+
+                    onIrHome = {
+                        tela = "home"
+                    },
+
+                    onIrProgramacao = {
+                        tela = "programacao"
+                    },
+
+                    onIrLive = {
+                        tela = "live"
+                    }
+                )
+            }
+        }
+
         else -> {
-
             LoginScreen(
-
                 onEntrar = { nome ->
-
                     nomeUsuario =
                         if (nome.isBlank())
                             "usuario"

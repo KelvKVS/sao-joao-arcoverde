@@ -299,10 +299,12 @@ fun HomeScreen(
                                 1.dp,
                                 Color(0xFFFFC107),
                                 CircleShape
-                            ),
+                            )
+                            .clickable {
+                                onIrProgramacao()
+                            },
                         contentAlignment = Alignment.Center
                     ) {
-
                         Text(
                             text = ">",
                             color = Color(0xFFFFC107),

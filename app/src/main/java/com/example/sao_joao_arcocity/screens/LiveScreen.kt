@@ -114,7 +114,7 @@ fun LiveScreen(
             ) {
 
                 Image(
-                    painter = painterResource(id = R.drawable.banner),
+                    painter = painterResource(id = R.drawable.livebanner),
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop

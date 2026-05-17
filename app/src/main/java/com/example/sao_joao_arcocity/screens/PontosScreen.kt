@@ -28,31 +28,49 @@ import com.example.sao_joao_arcocity.ui.theme.Sao_joao_arcocityTheme
 data class PontoCidade(
     val nome: String,
     val categoria: String,
+    val descricao: String,
+    val endereco: String,
+    val horario: String,
     val icone: Int,
-    val cor: Color
+    val cor: Color,
+    val fotos: List<Int>
 )
 
 @Composable
 fun PontosScreen(
     onIrHome: () -> Unit,
     onIrProgramacao: () -> Unit,
-    onIrLive: () -> Unit
+    onIrLive: () -> Unit,
+    onAbrirDetalhe: (PontoCidade) -> Unit
 ) {
-
     val pontos = listOf(
-
         PontoCidade(
             nome = "Só delícias",
             categoria = "Alimentação",
+            descricao = "Lanches e diversidade!",
+            endereco = "Av. Severiano José Freire, 411 - Centro",
+            horario = "22:00",
             icone = R.drawable.food,
-            cor = Color(0xFFFFC107)
+            cor = Color(0xFFFFC107),
+            fotos = listOf(
+                R.drawable.comidas,
+                R.drawable.comidas2,
+                R.drawable.comidas3
+            )
         ),
-
         PontoCidade(
             nome = "Farma Arcoverde",
             categoria = "Saúde",
+            descricao = "Farmácia e produtos de saúde.",
+            endereco = "Centro - Arcoverde",
+            horario = "21:00",
             icone = R.drawable.plus,
-            cor = Color(0xFF6ED7C8)
+            cor = Color(0xFF6ED7C8),
+            fotos = listOf(
+                R.drawable.plus,
+                R.drawable.banner,
+                R.drawable.show
+            )
         )
     )
 
@@ -61,7 +79,6 @@ fun PontosScreen(
             .fillMaxSize()
             .background(Color(0xFF05080C))
     ) {
-
         Image(
             painter = painterResource(id = R.drawable.fundohome),
             contentDescription = null,
@@ -75,13 +92,11 @@ fun PontosScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(bottom = 95.dp)
         ) {
-
             Spacer(modifier = Modifier.height(50.dp))
 
             Column(
                 modifier = Modifier.padding(horizontal = 20.dp)
             ) {
-
                 Text(
                     text = "Pontos da cidade",
                     color = Color.White,
@@ -112,14 +127,11 @@ fun PontosScreen(
                         RoundedCornerShape(18.dp)
                     )
                     .padding(horizontal = 18.dp),
-
                 contentAlignment = Alignment.CenterStart
             ) {
-
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
                     Image(
                         painter = painterResource(id = R.drawable.search),
                         contentDescription = null,
@@ -143,49 +155,33 @@ fun PontosScreen(
                 modifier = Modifier.padding(horizontal = 20.dp),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-
-                CategoriaChip(
-                    titulo = "Todos",
-                    ativo = true
-                )
-
-                CategoriaChip(
-                    titulo = "Alimentação"
-                )
-
-                CategoriaChip(
-                    titulo = "Serviços"
-                )
+                CategoriaChip(titulo = "Todos", ativo = true)
+                CategoriaChip(titulo = "Alimentação")
+                CategoriaChip(titulo = "Serviços")
             }
 
             Spacer(modifier = Modifier.height(28.dp))
 
             pontos.forEach { ponto ->
-
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp)
                         .clip(RoundedCornerShape(18.dp))
                         .background(Color(0xFF101826))
-                        .clickable { }
-                        .padding(
-                            horizontal = 16.dp,
-                            vertical = 14.dp
-                        ),
-
+                        .clickable {
+                            onAbrirDetalhe(ponto)
+                        }
+                        .padding(horizontal = 16.dp, vertical = 14.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
                     Box(
                         modifier = Modifier
                             .size(48.dp)
                             .clip(CircleShape)
                             .background(ponto.cor),
-
                         contentAlignment = Alignment.Center
                     ) {
-
                         Image(
                             painter = painterResource(id = ponto.icone),
                             contentDescription = null,
@@ -198,7 +194,6 @@ fun PontosScreen(
                     Column(
                         modifier = Modifier.weight(1f)
                     ) {
-
                         Text(
                             text = ponto.nome,
                             color = Color.White,
@@ -228,24 +223,11 @@ fun PontosScreen(
 
         BottomBar(
             modifier = Modifier.align(Alignment.BottomCenter),
-
             telaAtual = "pontos",
-
-            onHomeClick = {
-                onIrHome()
-            },
-
-            onProgramacaoClick = {
-                onIrProgramacao()
-            },
-
-            onLiveClick = {
-                onIrLive()
-            },
-
-            onpontosClick = {
-
-            }
+            onHomeClick = onIrHome,
+            onProgramacaoClick = onIrProgramacao,
+            onLiveClick = onIrLive,
+            onpontosClick = {}
         )
     }
 }
@@ -255,47 +237,32 @@ fun CategoriaChip(
     titulo: String,
     ativo: Boolean = false
 ) {
-
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(14.dp))
             .background(
-                if (ativo)
-                    Color(0xFFFFC107)
-                else
-                    Color(0xFF1A1F25)
+                if (ativo) Color(0xFFFFC107) else Color(0xFF1A1F25)
             )
-            .padding(
-                horizontal = 16.dp,
-                vertical = 10.dp
-            )
+            .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
-
         Text(
             text = titulo,
-            color = if (ativo)
-                Color.Black
-            else
-                Color.White,
+            color = if (ativo) Color.Black else Color.White,
             fontSize = 12.sp,
             fontWeight = FontWeight.SemiBold
         )
     }
 }
 
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PontosPreview() {
-
     Sao_joao_arcocityTheme {
-
         PontosScreen(
             onIrHome = {},
             onIrProgramacao = {},
-            onIrLive = {}
+            onIrLive = {},
+            onAbrirDetalhe = {}
         )
     }
 }
