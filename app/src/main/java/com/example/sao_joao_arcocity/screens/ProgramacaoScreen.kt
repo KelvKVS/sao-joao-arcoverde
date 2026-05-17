@@ -26,12 +26,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sao_joao_arcocity.R
+import com.example.sao_joao_arcocity.models.ProgramacaoResponse
+import com.example.sao_joao_arcocity.network.RetrofitInstance
 import com.example.sao_joao_arcocity.ui.theme.Sao_joao_arcocityTheme
 
 data class EventoProgramacao(
     val horario: String,
     val titulo: String,
     val local: String,
+    val dia: String,
+    val semana: String,
+    val categoria: String,
     val imagem: Int
 )
 
@@ -41,62 +46,41 @@ fun ProgramacaoScreen(
     onIrLive: () -> Unit,
     onIrPontos: () -> Unit
 ) {
+    var pesquisa by remember { mutableStateOf("") }
+    var eventos by remember { mutableStateOf<List<EventoProgramacao>>(emptyList()) }
+    var carregando by remember { mutableStateOf(true) }
+    var erro by remember { mutableStateOf<String?>(null) }
 
-    var pesquisa by remember {
-        mutableStateOf("")
+    LaunchedEffect(Unit) {
+        try {
+            val resposta = RetrofitInstance.api.buscarProgramacoes()
+            eventos = resposta.map { it.toEventoProgramacao() }
+            carregando = false
+        } catch (e: Exception) {
+            erro = e.message
+            carregando = false
+        }
     }
 
     val dias = listOf(
         DiaEvento("21 JUN", "Sexta", true),
-        DiaEvento("21 JUN", "Sabado"),
-        DiaEvento("21 JUN", "Domingo"),
-        DiaEvento("21 JUN", "Segunda")
+        DiaEvento("22 JUN", "Sábado"),
+        DiaEvento("23 JUN", "Domingo"),
+        DiaEvento("24 JUN", "Segunda")
     )
 
-    val eventos = listOf(
-
-        EventoProgramacao(
-            horario = "18:00",
-            titulo = "Abertura Oficial",
-            local = "Praça Central",
-            imagem = R.drawable.show
-        ),
-
-        EventoProgramacao(
-            horario = "19:00",
-            titulo = "Trio Pé de Serra",
-            local = "Palco Principal",
-            imagem = R.drawable.trio
-        ),
-
-        EventoProgramacao(
-            horario = "20:00",
-            titulo = "Forró dos Bons",
-            local = "Palco Principal",
-            imagem = R.drawable.forro
-        ),
-
-        EventoProgramacao(
-            horario = "21:00",
-            titulo = "João Gomes",
-            local = "Palco Principal",
-            imagem = R.drawable.joaogomes
-        ),
-
-        EventoProgramacao(
-            horario = "22:00",
-            titulo = "Encerramento",
-            local = "Palco Principal",
-            imagem = R.drawable.encerramento
-        )
-    )
+    val eventosFiltrados = eventos.filter {
+        pesquisa.isBlank() ||
+                it.titulo.contains(pesquisa, ignoreCase = true) ||
+                it.categoria.contains(pesquisa, ignoreCase = true) ||
+                it.local.contains(pesquisa, ignoreCase = true)
+    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF05080C))
     ) {
-
         Image(
             painter = painterResource(id = R.drawable.fundohome),
             contentDescription = null,
@@ -110,20 +94,16 @@ fun ProgramacaoScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(bottom = 90.dp)
         ) {
-
             Spacer(modifier = Modifier.height(50.dp))
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp),
-
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
                 Column {
-
                     Text(
                         text = "Programação",
                         color = Color.White,
@@ -161,14 +141,9 @@ fun ProgramacaoScreen(
                         RoundedCornerShape(18.dp)
                     )
                     .padding(horizontal = 18.dp),
-
                 contentAlignment = Alignment.CenterStart
             ) {
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Image(
                         painter = painterResource(id = R.drawable.search),
                         contentDescription = null,
@@ -180,21 +155,14 @@ fun ProgramacaoScreen(
 
                     BasicTextField(
                         value = pesquisa,
-                        onValueChange = {
-                            pesquisa = it
-                        },
-
+                        onValueChange = { pesquisa = it },
                         textStyle = TextStyle(
                             color = Color.White,
                             fontSize = 15.sp
                         ),
-
                         singleLine = true,
-
                         decorationBox = { innerTextField ->
-
                             if (pesquisa.isEmpty()) {
-
                                 Text(
                                     text = "Buscar por nome ou categoria",
                                     color = Color.Gray,
@@ -214,33 +182,24 @@ fun ProgramacaoScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(horizontal = 20.dp)
             ) {
-
                 items(dias) { dia ->
-
                     Box(
                         modifier = Modifier
                             .width(78.dp)
                             .height(90.dp)
                             .clip(RoundedCornerShape(18.dp))
                             .background(
-                                if (dia.ativo)
-                                    Color(0xFFFFC107)
-                                else
-                                    Color.Transparent
+                                if (dia.ativo) Color(0xFFFFC107)
+                                else Color.Transparent
                             )
                             .border(
                                 width = if (dia.ativo) 0.dp else 1.dp,
                                 color = Color.White,
                                 shape = RoundedCornerShape(18.dp)
                             ),
-
                         contentAlignment = Alignment.Center
                     ) {
-
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
                                 text = dia.dia,
                                 color = if (dia.ativo) Color.Black else Color.White,
@@ -262,20 +221,30 @@ fun ProgramacaoScreen(
 
             Spacer(modifier = Modifier.height(28.dp))
 
-            eventos.forEach { evento ->
+            if (carregando) {
+                Text(
+                    text = "Carregando programação...",
+                    color = Color.White,
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                )
+            }
 
+            erro?.let {
+                Text(
+                    text = "Erro ao carregar: $it",
+                    color = Color.Red,
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                )
+            }
+
+            eventosFiltrados.forEach { evento ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp),
-
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = evento.horario,
                             color = Color(0xFFFFC107),
@@ -284,7 +253,7 @@ fun ProgramacaoScreen(
                         )
 
                         Text(
-                            text = "Sexta",
+                            text = evento.semana,
                             color = Color.LightGray,
                             fontSize = 12.sp
                         )
@@ -303,10 +272,7 @@ fun ProgramacaoScreen(
 
                     Spacer(modifier = Modifier.width(14.dp))
 
-                    Column(
-                        modifier = Modifier.weight(1f)
-                    ) {
-
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = evento.titulo,
                             color = Color.White,
@@ -344,35 +310,42 @@ fun ProgramacaoScreen(
 
         BottomBar(
             modifier = Modifier.align(Alignment.BottomCenter),
-
             telaAtual = "programacao",
-
-            onHomeClick = {
-                onIrHome()
-            },
-
-            onProgramacaoClick = { },
-
-            onLiveClick = {
-                onIrLive()
-            },
-
-            onpontosClick = {
-                onIrPontos()
-            }
+            onHomeClick = { onIrHome() },
+            onProgramacaoClick = {},
+            onLiveClick = { onIrLive() },
+            onpontosClick = { onIrPontos() }
         )
     }
 }
 
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-)
+fun ProgramacaoResponse.toEventoProgramacao(): EventoProgramacao {
+    return EventoProgramacao(
+        horario = horario,
+        titulo = titulo,
+        local = local,
+        dia = dia,
+        semana = semana,
+        categoria = categoria,
+        imagem = escolherImagemProgramacao(imagem)
+    )
+}
+
+fun escolherImagemProgramacao(imagem: String): Int {
+    return when (imagem.lowercase()) {
+        "show.png" -> R.drawable.show
+        "trio.png" -> R.drawable.trio
+        "forro.png" -> R.drawable.forro
+        "joaogomes.png" -> R.drawable.joaogomes
+        "encerramento.png" -> R.drawable.encerramento
+        else -> R.drawable.show
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun ProgramacaoPreview() {
-
     Sao_joao_arcocityTheme {
-
         ProgramacaoScreen(
             onIrHome = {},
             onIrLive = {},

@@ -10,7 +10,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,6 +23,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sao_joao_arcocity.R
+import com.example.sao_joao_arcocity.models.PontoResponse
+import com.example.sao_joao_arcocity.network.RetrofitInstance
 import com.example.sao_joao_arcocity.ui.theme.Sao_joao_arcocityTheme
 
 data class PontoCidade(
@@ -43,36 +45,24 @@ fun PontosScreen(
     onIrLive: () -> Unit,
     onAbrirDetalhe: (PontoCidade) -> Unit
 ) {
-    val pontos = listOf(
-        PontoCidade(
-            nome = "Só delícias",
-            categoria = "Alimentação",
-            descricao = "Lanches e diversidade!",
-            endereco = "Av. Severiano José Freire, 411 - Centro",
-            horario = "22:00",
-            icone = R.drawable.food,
-            cor = Color(0xFFFFC107),
-            fotos = listOf(
-                R.drawable.comidas,
-                R.drawable.comidas2,
-                R.drawable.comidas3
-            )
-        ),
-        PontoCidade(
-            nome = "Farma Arcoverde",
-            categoria = "Saúde",
-            descricao = "Farmácia e produtos de saúde.",
-            endereco = "Centro - Arcoverde",
-            horario = "21:00",
-            icone = R.drawable.plus,
-            cor = Color(0xFF6ED7C8),
-            fotos = listOf(
-                R.drawable.plus,
-                R.drawable.banner,
-                R.drawable.show
-            )
-        )
-    )
+    var pontos by remember { mutableStateOf<List<PontoCidade>>(emptyList()) }
+    var carregando by remember { mutableStateOf(true) }
+    var erro by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        try {
+            val resposta = RetrofitInstance.api.buscarPontos()
+
+            pontos = resposta.map { ponto ->
+                ponto.toPontoCidade()
+            }
+
+            carregando = false
+        } catch (e: Exception) {
+            erro = e.message
+            carregando = false
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -162,6 +152,22 @@ fun PontosScreen(
 
             Spacer(modifier = Modifier.height(28.dp))
 
+            if (carregando) {
+                Text(
+                    text = "Carregando pontos...",
+                    color = Color.White,
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                )
+            }
+
+            erro?.let {
+                Text(
+                    text = "Erro ao carregar: $it",
+                    color = Color.Red,
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                )
+            }
+
             pontos.forEach { ponto ->
                 Row(
                     modifier = Modifier
@@ -228,6 +234,56 @@ fun PontosScreen(
             onProgramacaoClick = onIrProgramacao,
             onLiveClick = onIrLive,
             onpontosClick = {}
+        )
+    }
+}
+
+fun PontoResponse.toPontoCidade(): PontoCidade {
+    return PontoCidade(
+        nome = nome,
+        categoria = categoria,
+        descricao = descricao,
+        endereco = endereco,
+        horario = horario,
+        icone = escolherIcone(categoria),
+        cor = escolherCor(categoria),
+        fotos = escolherFotos(nome)
+    )
+}
+
+fun escolherIcone(categoria: String): Int {
+    return when (categoria.lowercase()) {
+        "alimentação" -> R.drawable.food
+        "saúde" -> R.drawable.plus
+        else -> R.drawable.location
+    }
+}
+
+fun escolherCor(categoria: String): Color {
+    return when (categoria.lowercase()) {
+        "alimentação" -> Color(0xFFFFC107)
+        "saúde" -> Color(0xFF6ED7C8)
+        else -> Color(0xFF4D8DFF)
+    }
+}
+
+fun escolherFotos(nome: String): List<Int> {
+    return when (nome.lowercase()) {
+        "só delícias" -> listOf(
+            R.drawable.comidas,
+            R.drawable.comidas2,
+            R.drawable.comidas3
+        )
+
+        "farma arcoverde" -> listOf(
+            R.drawable.plus,
+            R.drawable.banner,
+            R.drawable.show
+        )
+
+        else -> listOf(
+            R.drawable.banner,
+            R.drawable.show
         )
     }
 }
