@@ -3,6 +3,7 @@ package com.example.sao_joao_arcocity.network
 import com.example.sao_joao_arcocity.models.PontoResponse
 import com.example.sao_joao_arcocity.models.ProgramacaoResponse
 import com.example.sao_joao_arcocity.models.BannerResponse
+import com.example.sao_joao_arcocity.models.LiveResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 
@@ -22,4 +23,7 @@ interface ApiService {
 
     @GET("banners")
     suspend fun buscarBanners(): List<BannerResponse>
+
+    @GET("live")
+    suspend fun buscarLive(): LiveResponse
 }

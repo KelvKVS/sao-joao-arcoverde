@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -18,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,7 +37,9 @@ data class PontoCidade(
     val horario: String,
     val icone: Int,
     val cor: Color,
-    val fotos: List<Int>
+    val fotos: List<String>,
+    val latitude: Double,
+    val longitude: Double
 )
 
 @Composable
@@ -48,6 +52,9 @@ fun PontosScreen(
     var pontos by remember { mutableStateOf<List<PontoCidade>>(emptyList()) }
     var carregando by remember { mutableStateOf(true) }
     var erro by remember { mutableStateOf<String?>(null) }
+
+    var pesquisa by remember { mutableStateOf("") }
+    var categoriaSelecionada by remember { mutableStateOf("Todos") }
 
     LaunchedEffect(Unit) {
         try {
@@ -62,6 +69,24 @@ fun PontosScreen(
             erro = e.message
             carregando = false
         }
+    }
+
+    val pontosFiltrados = pontos.filter { ponto ->
+        val combinaPesquisa =
+            pesquisa.isBlank() ||
+                    ponto.nome.contains(pesquisa, ignoreCase = true) ||
+                    ponto.categoria.contains(pesquisa, ignoreCase = true) ||
+                    ponto.endereco.contains(pesquisa, ignoreCase = true)
+
+        val combinaCategoria =
+            categoriaSelecionada == "Todos" ||
+                    ponto.categoria.equals(categoriaSelecionada, ignoreCase = true) ||
+                    if (categoriaSelecionada == "Serviços")
+                        ponto.categoria != "Alimentação"
+                    else
+                        false
+
+        combinaPesquisa && combinaCategoria
     }
 
     Box(
@@ -131,10 +156,26 @@ fun PontosScreen(
 
                     Spacer(modifier = Modifier.width(12.dp))
 
-                    Text(
-                        text = "Buscar por nome ou categoria",
-                        color = Color.Gray,
-                        fontSize = 14.sp
+                    BasicTextField(
+                        value = pesquisa,
+                        onValueChange = { pesquisa = it },
+                        singleLine = true,
+                        textStyle = TextStyle(
+                            color = Color.White,
+                            fontSize = 14.sp
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
+                        decorationBox = { innerTextField ->
+                            if (pesquisa.isBlank()) {
+                                Text(
+                                    text = "Buscar por nome ou categoria",
+                                    color = Color.Gray,
+                                    fontSize = 14.sp
+                                )
+                            }
+
+                            innerTextField()
+                        }
                     )
                 }
             }
@@ -145,9 +186,23 @@ fun PontosScreen(
                 modifier = Modifier.padding(horizontal = 20.dp),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                CategoriaChip(titulo = "Todos", ativo = true)
-                CategoriaChip(titulo = "Alimentação")
-                CategoriaChip(titulo = "Serviços")
+                CategoriaChip(
+                    titulo = "Todos",
+                    ativo = categoriaSelecionada == "Todos",
+                    onClick = { categoriaSelecionada = "Todos" }
+                )
+
+                CategoriaChip(
+                    titulo = "Alimentação",
+                    ativo = categoriaSelecionada == "Alimentação",
+                    onClick = { categoriaSelecionada = "Alimentação" }
+                )
+
+                CategoriaChip(
+                    titulo = "Serviços",
+                    ativo = categoriaSelecionada == "Serviços",
+                    onClick = { categoriaSelecionada = "Serviços" }
+                )
             }
 
             Spacer(modifier = Modifier.height(28.dp))
@@ -168,7 +223,15 @@ fun PontosScreen(
                 )
             }
 
-            pontos.forEach { ponto ->
+            if (!carregando && erro == null && pontosFiltrados.isEmpty()) {
+                Text(
+                    text = "Nenhum ponto encontrado.",
+                    color = Color.LightGray,
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                )
+            }
+
+            pontosFiltrados.forEach { ponto ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -233,7 +296,8 @@ fun PontosScreen(
             onHomeClick = onIrHome,
             onProgramacaoClick = onIrProgramacao,
             onLiveClick = onIrLive,
-            onpontosClick = {}
+            onpontosClick = {},
+            onSobreClick = {}
         )
     }
 }
@@ -247,7 +311,9 @@ fun PontoResponse.toPontoCidade(): PontoCidade {
         horario = horario,
         icone = escolherIcone(categoria),
         cor = escolherCor(categoria),
-        fotos = escolherFotos(nome)
+        fotos = fotos,
+        latitude = latitude,
+        longitude = longitude
     )
 }
 
@@ -267,43 +333,33 @@ fun escolherCor(categoria: String): Color {
     }
 }
 
-fun escolherFotos(nome: String): List<Int> {
-    return when (nome.lowercase()) {
-        "só delícias" -> listOf(
-            R.drawable.comidas,
-            R.drawable.comidas2,
-            R.drawable.comidas3
-        )
-
-        "farma arcoverde" -> listOf(
-            R.drawable.plus,
-            R.drawable.banner,
-            R.drawable.show
-        )
-
-        else -> listOf(
-            R.drawable.banner,
-            R.drawable.show
-        )
-    }
-}
-
 @Composable
 fun CategoriaChip(
     titulo: String,
-    ativo: Boolean = false
+    ativo: Boolean = false,
+    onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(14.dp))
             .background(
-                if (ativo) Color(0xFFFFC107) else Color(0xFF1A1F25)
+                if (ativo)
+                    Color(0xFFFFC107)
+                else
+                    Color(0xFF1A1F25)
             )
+            .clickable {
+                onClick()
+            }
             .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
         Text(
             text = titulo,
-            color = if (ativo) Color.Black else Color.White,
+            color =
+                if (ativo)
+                    Color.Black
+                else
+                    Color.White,
             fontSize = 12.sp,
             fontWeight = FontWeight.SemiBold
         )

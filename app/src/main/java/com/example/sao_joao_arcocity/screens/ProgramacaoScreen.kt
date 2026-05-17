@@ -311,10 +311,11 @@ fun ProgramacaoScreen(
         BottomBar(
             modifier = Modifier.align(Alignment.BottomCenter),
             telaAtual = "programacao",
-            onHomeClick = { onIrHome() },
+            onHomeClick = onIrHome,
             onProgramacaoClick = {},
-            onLiveClick = { onIrLive() },
-            onpontosClick = { onIrPontos() }
+            onLiveClick = onIrLive,
+            onpontosClick = onIrPontos,
+            onSobreClick = {}
         )
     }
 }

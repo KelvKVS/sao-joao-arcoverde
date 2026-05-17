@@ -99,7 +99,6 @@ fun RotaMapaScreen(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-
                 ChipTempo(
                     texto = "5 min",
                     icone = R.drawable.car,
@@ -155,7 +154,10 @@ fun RotaMapaScreen(
 
             Button(
                 onClick = {
-                    val uri = Uri.parse("google.navigation:q=${ponto.endereco}")
+                    val uri = Uri.parse(
+                        "google.navigation:q=${ponto.latitude},${ponto.longitude}"
+                    )
+
                     val intent = Intent(Intent.ACTION_VIEW, uri)
                     intent.setPackage("com.google.android.apps.maps")
                     context.startActivity(intent)
@@ -171,7 +173,6 @@ fun RotaMapaScreen(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
                     Image(
                         painter = painterResource(id = R.drawable.maps),
                         contentDescription = null,
@@ -197,11 +198,9 @@ fun CampoRota(
     texto: String,
     icone: Int
 ) {
-
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         Image(
             painter = painterResource(id = icone),
             contentDescription = null,
@@ -221,10 +220,8 @@ fun CampoRota(
                     RoundedCornerShape(14.dp)
                 )
                 .padding(horizontal = 16.dp),
-
             contentAlignment = Alignment.CenterStart
         ) {
-
             Text(
                 text = texto,
                 color = Color.LightGray,
@@ -240,7 +237,6 @@ fun ChipTempo(
     icone: Int,
     ativo: Boolean = false
 ) {
-
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(20.dp))
@@ -250,14 +246,9 @@ fun ChipTempo(
                 else
                     Color.Transparent
             )
-            .padding(
-                horizontal = 12.dp,
-                vertical = 7.dp
-            ),
-
+            .padding(horizontal = 12.dp, vertical = 7.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         Image(
             painter = painterResource(id = icone),
             contentDescription = null,
@@ -273,7 +264,6 @@ fun ChipTempo(
                     Color.Black
                 else
                     Color.White,
-
             fontSize = 12.sp,
             fontWeight = FontWeight.SemiBold
         )
@@ -294,10 +284,12 @@ fun RotaMapaPreview() {
                 icone = R.drawable.food,
                 cor = Color(0xFFFFC107),
                 fotos = listOf(
-                    R.drawable.food,
-                    R.drawable.show,
-                    R.drawable.banner
-                )
+                    "https://images.unsplash.com/photo-1504674900247-0877df9cc836",
+                    "https://images.unsplash.com/photo-1555939594-58d7cb561ad1",
+                    "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38"
+                ),
+                latitude = -8.4186,
+                longitude = -37.0538
             ),
             onFechar = {}
         )

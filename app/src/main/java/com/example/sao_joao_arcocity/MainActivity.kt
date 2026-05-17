@@ -13,6 +13,7 @@ import com.example.sao_joao_arcocity.screens.PontoCidade
 import com.example.sao_joao_arcocity.screens.PontosScreen
 import com.example.sao_joao_arcocity.screens.ProgramacaoScreen
 import com.example.sao_joao_arcocity.screens.RotaMapaScreen
+import com.example.sao_joao_arcocity.screens.SobreScreen
 import com.example.sao_joao_arcocity.ui.theme.Sao_joao_arcocityTheme
 
 class MainActivity : ComponentActivity() {
@@ -52,7 +53,8 @@ fun App() {
                 nome = nomeUsuario,
                 onIrProgramacao = { tela = "programacao" },
                 onIrLive = { tela = "live" },
-                onIrPontos = { tela = "pontos" }
+                onIrPontos = { tela = "pontos" },
+                onIrSobre = { tela = "sobre" }
             )
         }
 
@@ -60,7 +62,8 @@ fun App() {
             ProgramacaoScreen(
                 onIrHome = { tela = "home" },
                 onIrLive = { tela = "live" },
-                onIrPontos = { tela = "pontos" }
+                onIrPontos = { tela = "pontos" },
+
             )
         }
 
@@ -68,7 +71,8 @@ fun App() {
             LiveScreen(
                 onIrHome = { tela = "home" },
                 onIrProgramacao = { tela = "programacao" },
-                onIrPontos = { tela = "pontos" }
+                onIrPontos = { tela = "pontos" },
+
             )
         }
 
@@ -77,6 +81,7 @@ fun App() {
                 onIrHome = { tela = "home" },
                 onIrProgramacao = { tela = "programacao" },
                 onIrLive = { tela = "live" },
+
                 onAbrirDetalhe = { ponto ->
                     pontoSelecionado = ponto
                     tela = "detalhePonto"
@@ -92,6 +97,7 @@ fun App() {
                     onIrHome = { tela = "home" },
                     onIrProgramacao = { tela = "programacao" },
                     onIrLive = { tela = "live" },
+
                     onVerMapa = { tela = "rotaMapa" }
                 )
             }
@@ -106,6 +112,15 @@ fun App() {
                     }
                 )
             }
+        }
+
+        "sobre" -> {
+            SobreScreen(
+                onIrHome = { tela = "home" },
+                onIrProgramacao = { tela = "programacao" },
+                onIrLive = { tela = "live" },
+                onIrPontos = { tela = "pontos" }
+            )
         }
 
         else -> {

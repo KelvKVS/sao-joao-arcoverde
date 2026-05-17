@@ -52,13 +52,14 @@ fun HomeScreen(
     nome: String,
     onIrProgramacao: () -> Unit,
     onIrLive: () -> Unit,
-    onIrPontos: () -> Unit
+    onIrPontos: () -> Unit,
+    onIrSobre: () -> Unit
 ) {
     val dias = listOf(
         DiaEvento("21 JUN", "Sexta", true),
-        DiaEvento("21 JUN", "Sabado"),
-        DiaEvento("21 JUN", "Domingo"),
-        DiaEvento("21 JUN", "Segunda")
+        DiaEvento("22 JUN", "Sabado"),
+        DiaEvento("23 JUN", "Domingo"),
+        DiaEvento("24 JUN", "Segunda")
     )
 
     var banners by remember {
@@ -425,7 +426,8 @@ fun HomeScreen(
             onHomeClick = {},
             onProgramacaoClick = { onIrProgramacao() },
             onLiveClick = { onIrLive() },
-            onpontosClick = { onIrPontos() }
+            onpontosClick = { onIrPontos() },
+            onSobreClick = { onIrSobre() }
         )
     }
 }
@@ -455,7 +457,8 @@ fun BottomBar(
     onHomeClick: () -> Unit,
     onProgramacaoClick: () -> Unit,
     onLiveClick: () -> Unit,
-    onpontosClick: () -> Unit
+    onpontosClick: () -> Unit,
+    onSobreClick: () -> Unit
 ) {
     Box(
         modifier = modifier
@@ -500,8 +503,8 @@ fun BottomBar(
             BottomItem(
                 icon = R.drawable.info,
                 title = "Sobre",
-                ativo = false,
-                onClick = {}
+                ativo = telaAtual == "sobre",
+                onClick = onSobreClick
             )
         }
     }
@@ -548,7 +551,8 @@ fun HomePreview() {
             nome = "usuario",
             onIrProgramacao = {},
             onIrLive = {},
-            onIrPontos = {}
+            onIrPontos = {},
+            onIrSobre = {}
         )
     }
 }

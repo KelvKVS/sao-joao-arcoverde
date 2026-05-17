@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.sao_joao_arcocity.R
 import com.example.sao_joao_arcocity.ui.theme.Sao_joao_arcocityTheme
 
@@ -66,10 +67,8 @@ fun DetalhePontoScreen(
                         .clickable {
                             onVoltar()
                         },
-
                     contentAlignment = Alignment.Center
                 ) {
-
                     Image(
                         painter = painterResource(id = R.drawable.arrow),
                         contentDescription = null,
@@ -166,12 +165,25 @@ fun DetalhePontoScreen(
                     .fillMaxWidth()
                     .height(48.dp)
             ) {
-                Text(
-                    text = "⌖ Ver no mapa",
-                    color = Color.Black,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Image(
+                        painter = painterResource(id = R.drawable.locationbutton),
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Text(
+                        text = "Ver no mapa",
+                        color = Color.Black,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -198,8 +210,8 @@ fun DetalhePontoScreen(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 items(ponto.fotos.size) { index ->
-                    Image(
-                        painter = painterResource(id = ponto.fotos[index]),
+                    AsyncImage(
+                        model = ponto.fotos[index],
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -217,7 +229,8 @@ fun DetalhePontoScreen(
             onHomeClick = onIrHome,
             onProgramacaoClick = onIrProgramacao,
             onLiveClick = onIrLive,
-            onpontosClick = onVoltar
+            onpontosClick = onVoltar,
+            onSobreClick = {}
         )
     }
 }
@@ -225,26 +238,41 @@ fun DetalhePontoScreen(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun DetalhePontoPreview() {
+
     Sao_joao_arcocityTheme {
+
         DetalhePontoScreen(
+
             ponto = PontoCidade(
+
                 nome = "Só delícias",
                 categoria = "Alimentação",
                 descricao = "Lanches e diversidade!",
                 endereco = "Av. Severiano José Freire, 411 - Centro",
                 horario = "22:00",
+
                 icone = R.drawable.food,
+
                 cor = Color(0xFFFFC107),
+
                 fotos = listOf(
-                    R.drawable.food,
-                    R.drawable.show,
-                    R.drawable.banner
-                )
+                    "https://images.unsplash.com/photo-1504674900247-0877df9cc836",
+                    "https://images.unsplash.com/photo-1555939594-58d7cb561ad1",
+                    "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38"
+                ),
+
+                latitude = -8.4186,
+                longitude = -37.0538
             ),
+
             onVoltar = {},
+
             onIrHome = {},
+
             onIrProgramacao = {},
+
             onIrLive = {},
+
             onVerMapa = {}
         )
     }
