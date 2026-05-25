@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — São João Arcoverde</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #05080C;
+      --surface:  #0D1117;
+      --card:     #161B22;
+      --border:   #30363D;
+      --accent:   #FFC107;
+      --accent2:  #E6AC00;
+      --text:     #E6EDF3;
+      --muted:    #8B949E;
+      --danger:   #F85149;
+      --success:  #3FB950;
+      --radius:   8px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    header .logo {
+      width: 36px; height: 36px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    header h1 { font-size: 17px; font-weight: 600; }
+    header span { color: var(--muted); font-size: 13px; margin-left: 4px; }
+    #logout-btn {
+      margin-left: auto;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 5px 12px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 13px;
+    }
+    #logout-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+    /* ── Login overlay ── */
+    #login-overlay {
+      position: fixed; inset: 0;
+      background: rgba(5,8,12,.95);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 999;
+    }
+    .login-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 40px 36px;
+      width: 340px;
+      text-align: center;
+    }
+    .login-box .logo-lg {
+      width: 64px; height: 64px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      margin: 0 auto 20px;
+    }
+    .login-box h2 { font-size: 20px; margin-bottom: 6px; }
+    .login-box p { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+    .login-box input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 15px;
+      margin-bottom: 14px;
+      outline: none;
+    }
+    .login-box input:focus { border-color: var(--accent); }
+    .login-box button {
+      width: 100%;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: var(--radius);
+      padding: 11px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .login-box button:hover { background: var(--accent2); }
+    #login-error { color: var(--danger); font-size: 13px; margin-top: 10px; min-height: 18px; }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      padding: 16px 24px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--muted);
+      padding: 8px 18px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: -1px;
+      border-radius: 6px 6px 0 0;
+      transition: color .15s, border-color .15s;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    /* ── Main ── */
+    main { padding: 24px; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .panel-header h2 { font-size: 18px; }
+    .btn-new {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: var(--radius);
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .btn-new:hover { background: var(--accent2); }
+
+    /* ── Table ── */
+    .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead { background: var(--surface); }
+    th { padding: 10px 14px; text-align: left; color: var(--muted); font-weight: 600; white-space: nowrap; }
+    td { padding: 10px 14px; border-top: 1px solid var(--border); vertical-align: middle; }
+    tr:hover td { background: rgba(255,255,255,.03); }
+    .cell-id { font-family: monospace; font-size: 11px; color: var(--muted); max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cell-img { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 600;
+    }
+    .badge-on  { background: rgba(63,185,80,.15); color: var(--success); }
+    .badge-off { background: rgba(139,148,158,.12); color: var(--muted); }
+
+    /* Row actions */
+    .row-actions { display: flex; gap: 6px; }
+    .btn-edit, .btn-del {
+      border: none; border-radius: 5px;
+      padding: 4px 10px; font-size: 12px; cursor: pointer; font-weight: 500;
+    }
+    .btn-edit { background: rgba(255,193,7,.12); color: var(--accent); }
+    .btn-edit:hover { background: rgba(255,193,7,.25); }
+    .btn-del  { background: rgba(248,81,73,.12); color: var(--danger); }
+    .btn-del:hover  { background: rgba(248,81,73,.25); }
+
+    /* Empty state */
+    .empty { text-align: center; padding: 48px 24px; color: var(--muted); font-size: 14px; }
+
+    /* ── Modal ── */
+    .modal-backdrop {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(5,8,12,.8);
+      z-index: 100;
+      align-items: center; justify-content: center;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: 520px; max-width: 95vw;
+      max-height: 90vh; overflow-y: auto;
+      padding: 28px;
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 22px;
+    }
+    .modal-header h3 { font-size: 16px; }
+    .modal-close {
+      background: none; border: none; color: var(--muted);
+      font-size: 20px; cursor: pointer; line-height: 1;
+    }
+    .modal-close:hover { color: var(--text); }
+
+    /* Form */
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; font-weight: 500; text-transform: uppercase; letter-spacing: .5px; }
+    input[type=text], input[type=number], input[type=url], select, textarea {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 9px 12px;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+    textarea { resize: vertical; min-height: 80px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-check { display: flex; align-items: center; gap: 10px; }
+    .form-check input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+    .form-check label { margin: 0; text-transform: none; font-size: 14px; letter-spacing: 0; color: var(--text); font-weight: 400; }
+
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+    .btn-cancel {
+      background: none; border: 1px solid var(--border);
+      color: var(--muted); border-radius: var(--radius);
+      padding: 8px 18px; cursor: pointer; font-size: 14px;
+    }
+    .btn-cancel:hover { border-color: var(--text); color: var(--text); }
+    .btn-save {
+      background: var(--accent); color: #000;
+      border: none; border-radius: var(--radius);
+      padding: 8px 22px; font-size: 14px; font-weight: 600; cursor: pointer;
+    }
+    .btn-save:hover { background: var(--accent2); }
+    .btn-save:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* Toast */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 12px 18px;
+      font-size: 13px; z-index: 999; opacity: 0;
+      transform: translateY(8px);
+      transition: opacity .25s, transform .25s;
+      pointer-events: none;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.ok { border-left: 3px solid var(--success); }
+    #toast.err { border-left: 3px solid var(--danger); }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-overlay">
+  <div class="login-box">
+    <div class="logo-lg">🎪</div>
+    <h2>Painel Administrativo</h2>
+    <p>São João Arcoverde 2026</p>
+    <input id="pwd-input" type="password" placeholder="Senha de acesso" autofocus />
+    <button onclick="doLogin()">Entrar</button>
+    <div id="login-error"></div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">🎪</div>
+  <h1>São João Arcoverde <span>Admin</span></h1>
+  <button id="logout-btn" onclick="doLogout()">Sair</button>
+</header>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('banners',this)">🖼 Banners</button>
+  <button class="tab-btn" onclick="showTab('programacoes',this)">📅 Programações</button>
+  <button class="tab-btn" onclick="showTab('pontos',this)">📍 Pontos</button>
+  <button class="tab-btn" onclick="showTab('lives',this)">🔴 Lives</button>
+</div>
+
+<main>
+
+  <!-- ── BANNERS ── -->
+  <div id="tab-banners" class="tab-panel active">
+    <div class="panel-header">
+      <h2>Banners</h2>
+      <button class="btn-new" onclick="openModal('banner')">+ Novo Banner</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Título</th><th>Subtítulo</th><th>Imagem</th><th>Ações</th></tr></thead>
+        <tbody id="banners-body"><tr><td colspan="5" class="empty">Carregando…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── PROGRAMAÇÕES ── -->
+  <div id="tab-programacoes" class="tab-panel">
+    <div class="panel-header">
+      <h2>Programações</h2>
+      <button class="btn-new" onclick="openModal('programacao')">+ Nova Programação</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Título</th><th>Local</th><th>Dia</th><th>Horário</th><th>Categoria</th><th>Ações</th></tr></thead>
+        <tbody id="programacoes-body"><tr><td colspan="7" class="empty">Carregando…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── PONTOS ── -->
+  <div id="tab-pontos" class="tab-panel">
+    <div class="panel-header">
+      <h2>Pontos de Interesse</h2>
+      <button class="btn-new" onclick="openModal('ponto')">+ Novo Ponto</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Nome</th><th>Categoria</th><th>Endereço</th><th>Horário</th><th>Ações</th></tr></thead>
+        <tbody id="pontos-body"><tr><td colspan="6" class="empty">Carregando…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── LIVES ── -->
+  <div id="tab-lives" class="tab-panel">
+    <div class="panel-header">
+      <h2>Lives</h2>
+      <button class="btn-new" onclick="openModal('live')">+ Nova Live</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Título</th><th>YouTube URL</th><th>Status</th><th>Ações</th></tr></thead>
+        <tbody id="lives-body"><tr><td colspan="5" class="empty">Carregando…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<!-- ── MODAL ── -->
+<div id="modal-backdrop" class="modal-backdrop" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">Novo Item</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <form id="modal-form" onsubmit="submitForm(event)">
+      <div id="modal-fields"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" onclick="closeModal()">Cancelar</button>
+        <button type="submit" class="btn-save" id="save-btn">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+  const ADMIN_PASSWORD = 'saojoao2026';
+  const API = '';  // mesmo origin
+
+  // ── Auth ──
+  function doLogin() {
+    const v = document.getElementById('pwd-input').value;
+    if (v === ADMIN_PASSWORD) {
+      sessionStorage.setItem('admin_auth', '1');
+      document.getElementById('login-overlay').style.display = 'none';
+      loadAll();
+    } else {
+      document.getElementById('login-error').textContent = 'Senha incorreta.';
+    }
+  }
+  document.getElementById('pwd-input').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+  function doLogout() {
+    sessionStorage.removeItem('admin_auth');
+    location.reload();
+  }
+
+  if (sessionStorage.getItem('admin_auth') === '1') {
+    document.getElementById('login-overlay').style.display = 'none';
+    loadAll();
+  }
+
+  // ── Toast ──
+  function toast(msg, type = 'ok') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'show ' + type;
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.className = '', 3000);
+  }
+
+  // ── Tabs ──
+  function showTab(name, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // ── API helpers ──
+  async function apiFetch(path, opts = {}) {
+    const res = await fetch(API + path, {
+      headers: { 'Content-Type': 'application/json' },
+      ...opts
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (res.status === 204) return null;
+    try { return await res.json(); } catch { return null; }
+  }
+
+  // ── Load all ──
+  function loadAll() { loadBanners(); loadProgramacoes(); loadPontos(); loadLives(); }
+
+  // ══════════════ BANNERS ══════════════
+  async function loadBanners() {
+    const tbody = document.getElementById('banners-body');
+    try {
+      const data = await apiFetch('/banners');
+      if (!data.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">Nenhum banner cadastrado.</td></tr>'; return; }
+      tbody.innerHTML = data.map(b => `
+        <tr>
+          <td class="cell-id" title="${b.id}">${b.id}</td>
+          <td>${esc(b.titulo)}</td>
+          <td>${esc(b.subtitulo)}</td>
+          <td class="cell-img" title="${b.imagem}">${esc(b.imagem)}</td>
+          <td><div class="row-actions">
+            <button class="btn-edit" onclick='editBanner(${JSON.stringify(b)})'>Editar</button>
+            <button class="btn-del"  onclick="delBanner('${b.id}')">Excluir</button>
+          </div></td>
+        </tr>`).join('');
+    } catch(e) { tbody.innerHTML = `<tr><td colspan="5" class="empty">Erro ao carregar: ${e.message}</td></tr>`; }
+  }
+
+  function openModal(type, data = null) {
+    currentType = type; currentData = data;
+    const isEdit = data !== null;
+    document.getElementById('modal-title').textContent = (isEdit ? 'Editar ' : 'Novo ') + labels[type];
+    document.getElementById('modal-fields').innerHTML = buildForm(type, data);
+    document.getElementById('modal-backdrop').classList.add('open');
+  }
+
+  function closeModal() { document.getElementById('modal-backdrop').classList.remove('open'); }
+  function closeModalOutside(e) { if (e.target === document.getElementById('modal-backdrop')) closeModal(); }
+
+  const labels = { banner: 'Banner', programacao: 'Programação', ponto: 'Ponto', live: 'Live' };
+  let currentType = null, currentData = null;
+
+  function buildForm(type, d = {}) {
+    d = d || {};
+    if (type === 'banner') return `
+      <div class="form-group"><label>Título</label><input type="text" name="titulo" value="${esc(d.titulo||'')}" required /></div>
+      <div class="form-group"><label>Subtítulo</label><input type="text" name="subtitulo" value="${esc(d.subtitulo||'')}" required /></div>
+      <div class="form-group"><label>URL da Imagem</label><input type="text" name="imagem" value="${esc(d.imagem||'')}" required placeholder="https://... ou nome do arquivo" /></div>`;
+
+    if (type === 'programacao') return `
+      <div class="form-group"><label>Título</label><input type="text" name="titulo" value="${esc(d.titulo||'')}" required /></div>
+      <div class="form-row">
+        <div class="form-group"><label>Horário</label><input type="text" name="horario" value="${esc(d.horario||'')}" required placeholder="19:00" /></div>
+        <div class="form-group"><label>Local</label><input type="text" name="local" value="${esc(d.local||'')}" required /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Dia</label>
+          <select name="dia">
+            ${['21 JUN','22 JUN','23 JUN','24 JUN'].map(v=>`<option${d.dia===v?' selected':''}>${v}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group"><label>Semana</label>
+          <select name="semana">
+            ${['Sábado','Domingo','Segunda','Terça','Quarta','Quinta','Sexta'].map(v=>`<option${d.semana===v?' selected':''}>${v}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Categoria</label><input type="text" name="categoria" value="${esc(d.categoria||'')}" required placeholder="Forró, Show, etc." /></div>
+      <div class="form-group"><label>URL da Imagem</label><input type="text" name="imagem" value="${esc(d.imagem||'')}" required placeholder="https://... ou nome do arquivo" /></div>`;
+
+    if (type === 'ponto') return `
+      <div class="form-group"><label>Nome</label><input type="text" name="nome" value="${esc(d.nome||'')}" required /></div>
+      <div class="form-row">
+        <div class="form-group"><label>Categoria</label>
+          <select name="categoria">
+            ${['Alimentação','Saúde','Serviços','Lazer','Outros'].map(v=>`<option${d.categoria===v?' selected':''}>${v}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group"><label>Horário de Funcionamento</label><input type="text" name="horario" value="${esc(d.horario||'')}" placeholder="08:00 – 22:00" /></div>
+      </div>
+      <div class="form-group"><label>Descrição</label><textarea name="descricao">${esc(d.descricao||'')}</textarea></div>
+      <div class="form-group"><label>Endereço</label><input type="text" name="endereco" value="${esc(d.endereco||'')}" required /></div>
+      <div class="form-row">
+        <div class="form-group"><label>Latitude</label><input type="number" step="any" name="latitude" value="${d.latitude||''}" required /></div>
+        <div class="form-group"><label>Longitude</label><input type="number" step="any" name="longitude" value="${d.longitude||''}" required /></div>
+      </div>
+      <div class="form-group"><label>Fotos (uma URL por linha)</label>
+        <textarea name="fotos" placeholder="https://exemplo.com/foto1.jpg&#10;https://exemplo.com/foto2.jpg">${(d.fotos||[]).join('\n')}</textarea>
+      </div>`;
+
+    if (type === 'live') return `
+      <div class="form-group"><label>Título</label><input type="text" name="titulo" value="${esc(d.titulo||'')}" required /></div>
+      <div class="form-group"><label>YouTube URL</label><input type="url" name="youtubeUrl" value="${esc(d.youtubeUrl||'')}" required placeholder="https://www.youtube.com/watch?v=..." /></div>
+      <div class="form-group"><div class="form-check">
+        <input type="checkbox" name="ativa" id="chk-ativa" ${d.ativa?'checked':''} />
+        <label for="chk-ativa">Ao vivo agora (ativa)</label>
+      </div></div>`;
+
+    return '';
+  }
+
+  async function submitForm(e) {
+    e.preventDefault();
+    const btn = document.getElementById('save-btn');
+    btn.disabled = true;
+    btn.textContent = 'Salvando…';
+
+    const fd = new FormData(e.target);
+    let body = {};
+
+    try {
+      if (currentType === 'banner') {
+        body = { titulo: fd.get('titulo'), subtitulo: fd.get('subtitulo'), imagem: fd.get('imagem') };
+      } else if (currentType === 'programacao') {
+        body = { titulo: fd.get('titulo'), horario: fd.get('horario'), local: fd.get('local'), dia: fd.get('dia'), semana: fd.get('semana'), categoria: fd.get('categoria'), imagem: fd.get('imagem') };
+      } else if (currentType === 'ponto') {
+        body = {
+          nome: fd.get('nome'), categoria: fd.get('categoria'), descricao: fd.get('descricao'),
+          endereco: fd.get('endereco'), horario: fd.get('horario'),
+          latitude: parseFloat(fd.get('latitude')), longitude: parseFloat(fd.get('longitude')),
+          fotos: fd.get('fotos').split('\n').map(s=>s.trim()).filter(Boolean)
+        };
+      } else if (currentType === 'live') {
+        body = { titulo: fd.get('titulo'), youtubeUrl: fd.get('youtubeUrl'), ativa: !!document.getElementById('chk-ativa').checked };
+      }
+
+      const endpoint = { banner: '/banners', programacao: '/programacoes', ponto: '/pontos', live: '/lives' }[currentType];
+
+      if (currentData) {
+        await apiFetch(endpoint + '/' + currentData.id, { method: 'PUT', body: JSON.stringify(body) });
+        toast('Atualizado com sucesso!', 'ok');
+      } else {
+        await apiFetch(endpoint, { method: 'POST', body: JSON.stringify(body) });
+        toast('Criado com sucesso!', 'ok');
+      }
+
+      closeModal();
+      loadAll();
+    } catch(err) {
+      toast('Erro: ' + err.message, 'err');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Salvar';
+    }
+  }
+
+  function editBanner(b)      { openModal('banner', b); }
+  function editProgramacao(p) { openModal('programacao', p); }
+  function editPonto(p)       { openModal('ponto', p); }
+  function editLive(l)        { openModal('live', l); }
+
+  async function delBanner(id) {
+    if (!confirm('Excluir este banner?')) return;
+    try { await apiFetch('/banners/' + id, { method: 'DELETE' }); toast('Banner excluído.', 'ok'); loadBanners(); }
+    catch(e) { toast('Erro ao excluir: ' + e.message, 'err'); }
+  }
+
+  // ══════════════ PROGRAMAÇÕES ══════════════
+  async function loadProgramacoes() {
+    const tbody = document.getElementById('programacoes-body');
+    try {
+      const data = await apiFetch('/programacoes');
+      if (!data.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty">Nenhuma programação cadastrada.</td></tr>'; return; }
+      tbody.innerHTML = data.map(p => `
+        <tr>
+          <td class="cell-id" title="${p.id}">${p.id}</td>
+          <td>${esc(p.titulo)}</td>
+          <td>${esc(p.local)}</td>
+          <td>${esc(p.dia)}</td>
+          <td>${esc(p.horario)}</td>
+          <td>${esc(p.categoria)}</td>
+          <td><div class="row-actions">
+            <button class="btn-edit" onclick='editProgramacao(${JSON.stringify(p)})'>Editar</button>
+            <button class="btn-del"  onclick="delProgramacao('${p.id}')">Excluir</button>
+          </div></td>
+        </tr>`).join('');
+    } catch(e) { tbody.innerHTML = `<tr><td colspan="7" class="empty">Erro: ${e.message}</td></tr>`; }
+  }
+
+  async function delProgramacao(id) {
+    if (!confirm('Excluir esta programação?')) return;
+    try { await apiFetch('/programacoes/' + id, { method: 'DELETE' }); toast('Programação excluída.', 'ok'); loadProgramacoes(); }
+    catch(e) { toast('Erro: ' + e.message, 'err'); }
+  }
+
+  // ══════════════ PONTOS ══════════════
+  async function loadPontos() {
+    const tbody = document.getElementById('pontos-body');
+    try {
+      const data = await apiFetch('/pontos');
+      if (!data.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">Nenhum ponto cadastrado.</td></tr>'; return; }
+      tbody.innerHTML = data.map(p => `
+        <tr>
+          <td class="cell-id" title="${p.id}">${p.id}</td>
+          <td>${esc(p.nome)}</td>
+          <td>${esc(p.categoria)}</td>
+          <td>${esc(p.endereco)}</td>
+          <td>${esc(p.horario)}</td>
+          <td><div class="row-actions">
+            <button class="btn-edit" onclick='editPonto(${JSON.stringify(p)})'>Editar</button>
+            <button class="btn-del"  onclick="delPonto('${p.id}')">Excluir</button>
+          </div></td>
+        </tr>`).join('');
+    } catch(e) { tbody.innerHTML = `<tr><td colspan="6" class="empty">Erro: ${e.message}</td></tr>`; }
+  }
+
+  async function delPonto(id) {
+    if (!confirm('Excluir este ponto?')) return;
+    try { await apiFetch('/pontos/' + id, { method: 'DELETE' }); toast('Ponto excluído.', 'ok'); loadPontos(); }
+    catch(e) { toast('Erro: ' + e.message, 'err'); }
+  }
+
+  // ══════════════ LIVES ══════════════
+  async function loadLives() {
+    const tbody = document.getElementById('lives-body');
+    try {
+      const data = await apiFetch('/lives');
+      if (!data.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">Nenhuma live cadastrada.</td></tr>'; return; }
+      tbody.innerHTML = data.map(l => `
+        <tr>
+          <td class="cell-id" title="${l.id}">${l.id}</td>
+          <td>${esc(l.titulo)}</td>
+          <td class="cell-img" title="${l.youtubeUrl}">${esc(l.youtubeUrl)}</td>
+          <td><span class="badge ${l.ativa?'badge-on':'badge-off'}">${l.ativa?'● Ao vivo':'○ Offline'}</span></td>
+          <td><div class="row-actions">
+            <button class="btn-edit" onclick='editLive(${JSON.stringify(l)})'>Editar</button>
+            <button class="btn-del"  onclick="delLive('${l.id}')">Excluir</button>
+          </div></td>
+        </tr>`).join('');
+    } catch(e) { tbody.innerHTML = `<tr><td colspan="5" class="empty">Erro: ${e.message}</td></tr>`; }
+  }
+
+  async function delLive(id) {
+    if (!confirm('Excluir esta live?')) return;
+    try { await apiFetch('/lives/' + id, { method: 'DELETE' }); toast('Live excluída.', 'ok'); loadLives(); }
+    catch(e) { toast('Erro: ' + e.message, 'err'); }
+  }
+
+  // ── Util ──
+  function esc(s) {
+    return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+</script>
+</body>
+</html>

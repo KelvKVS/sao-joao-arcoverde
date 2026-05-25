@@ -10,6 +10,7 @@ import com.saojoao.routes.programacaoRoutes
 import com.saojoao.routes.bannerRoutes
 import com.saojoao.routes.liveRoutes
 import io.ktor.server.application.*
+import io.ktor.server.http.content.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
@@ -28,5 +29,9 @@ fun Application.configureRouting() {
         programacaoRoutes(programacaoRepository)
         bannerRoutes(bannerRepository)
         liveRoutes(liveRepository)
+
+        staticResources("/admin", "static") {
+            default("index.html")
+        }
     }
 }
