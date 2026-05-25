@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ProgramacaoResponse(
-    val id: Int,
+    val id: String = "",
     val horario: String,
     val titulo: String,
     val local: String,

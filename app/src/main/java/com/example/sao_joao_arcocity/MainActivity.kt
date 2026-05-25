@@ -1,10 +1,12 @@
 package com.example.sao_joao_arcocity
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import com.example.sao_joao_arcocity.screens.DetalhePontoScreen
 import com.example.sao_joao_arcocity.screens.HomeScreen
 import com.example.sao_joao_arcocity.screens.LiveScreen
@@ -33,13 +35,17 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun App() {
-
-    var tela by remember {
-        mutableStateOf("login")
+    val context = LocalContext.current
+    val sharedPreferences = remember { 
+        context.getSharedPreferences("SaoJoaoPrefs", Context.MODE_PRIVATE) 
     }
 
     var nomeUsuario by remember {
-        mutableStateOf("")
+        mutableStateOf(sharedPreferences.getString("nomeUsuario", "") ?: "")
+    }
+
+    var tela by remember {
+        mutableStateOf(if (nomeUsuario.isNotBlank()) "home" else "login")
     }
 
     var pontoSelecionado by remember {
@@ -126,9 +132,12 @@ fun App() {
         else -> {
             LoginScreen(
                 onEntrar = { nome ->
-                    nomeUsuario =
-                        if (nome.isBlank()) "usuario" else nome
-
+                    val nomeSalvo = if (nome.isBlank()) "usuario" else nome
+                    nomeUsuario = nomeSalvo
+                    
+                    // Salva no SharedPreferences para não pedir na próxima vez
+                    sharedPreferences.edit().putString("nomeUsuario", nomeSalvo).apply()
+                    
                     tela = "home"
                 }
             )

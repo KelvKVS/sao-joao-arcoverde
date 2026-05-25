@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class BannerResponse(
-    val id: Int,
+    val id: String = "",
     val titulo: String,
     val subtitulo: String,
     val imagem: String

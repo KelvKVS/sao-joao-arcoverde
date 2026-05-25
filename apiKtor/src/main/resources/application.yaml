@@ -6,4 +6,11 @@ ktor:
       - com.saojoao.HttpKt.configureHttp
       - com.saojoao.SerializationKt.configureSerialization
       - com.saojoao.StatusPagesKt.configureStatusPages
+      - com.saojoao.database.DatabaseKt.configureDatabase
       - com.saojoao.RoutingKt.configureRouting
+
+mongo:
+  # Cole a sua string de conexão (Connection String) do MongoDB Cloud aqui.
+  # Exemplo: mongodb+srv://<usuario>:<senha>@cluster0...
+  uri: ${MONGO_URI:mongodb+srv://jerfessonmelo123:SaoJoaoArcoverde2026@saojoaoarcoverde.d3ncrmp.mongodb.net/?appName=SaoJoaoArcoverde}
+  database: sao_joao_arcoverde

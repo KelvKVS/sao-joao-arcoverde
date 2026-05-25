@@ -1,7 +1,7 @@
 package com.example.sao_joao_arcocity.models
 
 data class PontoResponse(
-    val id: Int,
+    val id: String,
     val nome: String,
     val categoria: String,
     val descricao: String,

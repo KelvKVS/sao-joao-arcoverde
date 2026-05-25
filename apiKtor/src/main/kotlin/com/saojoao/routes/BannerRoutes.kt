@@ -1,13 +1,13 @@
 package com.saojoao.routes
 
-import com.saojoao.data.bannersMock
+import com.saojoao.repository.BannerRepository
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-fun Route.bannerRoutes() {
+fun Route.bannerRoutes(repository: BannerRepository) {
     route("/banners") {
         get {
-            call.respond(bannersMock)
+            call.respond(repository.listarTodos())
         }
     }
 }

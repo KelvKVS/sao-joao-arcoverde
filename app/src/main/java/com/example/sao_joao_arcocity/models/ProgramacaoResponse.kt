@@ -1,7 +1,7 @@
 package com.example.sao_joao_arcocity.models
 
 data class ProgramacaoResponse(
-    val id: Int,
+    val id: String,
     val horario: String,
     val titulo: String,
     val local: String,

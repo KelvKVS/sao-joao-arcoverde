@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class PontoResponse(
-    val id: Int,
+    val id: String = "",
     val nome: String,
     val categoria: String,
     val descricao: String,

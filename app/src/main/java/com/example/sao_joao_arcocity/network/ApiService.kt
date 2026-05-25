@@ -9,21 +9,21 @@ import retrofit2.http.Path
 
 interface ApiService {
 
-    @GET("pontos")
-    suspend fun buscarPontos(): List<PontoResponse>
-
-    @GET("pontos/{id}")
-    suspend fun buscarPontoPorId(@Path("id") id: Int): PontoResponse
+    @GET("banners")
+    suspend fun buscarBanners(): List<BannerResponse>
 
     @GET("programacoes")
     suspend fun buscarProgramacoes(): List<ProgramacaoResponse>
 
     @GET("programacoes/{id}")
-    suspend fun buscarProgramacaoPorId(@Path("id") id: Int): ProgramacaoResponse
-
-    @GET("banners")
-    suspend fun buscarBanners(): List<BannerResponse>
+    suspend fun buscarProgramacaoPorId(@Path("id") id: String): ProgramacaoResponse
 
     @GET("live")
     suspend fun buscarLive(): LiveResponse
+
+    @GET("pontos")
+    suspend fun buscarPontos(): List<PontoResponse>
+
+    @GET("pontos/{id}")
+    suspend fun buscarPontoPorId(@Path("id") id: String): PontoResponse
 }

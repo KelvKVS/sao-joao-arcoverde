@@ -1,22 +1,27 @@
 package com.saojoao.routes
 
-import com.saojoao.data.pontosMock
+import com.saojoao.repository.PontoRepository
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-fun Route.pontosRoutes() {
+fun Route.pontosRoutes(repository: PontoRepository) {
     route("/pontos") {
         get {
-            call.respond(pontosMock)
+            call.respond(repository.listarTodos())
         }
 
         get("/{id}") {
-            val id = call.parameters["id"]?.toIntOrNull()
+            val id = call.parameters["id"]
+            if (id == null) {
+                call.respond(HttpStatusCode.BadRequest, "ID inválido")
+                return@get
+            }
 
-            val ponto = pontosMock.find { it.id == id }
+            val ponto = repository.buscarPorId(id)
 
             if (ponto == null) {
-                call.respondText("Ponto não encontrado")
+                call.respond(HttpStatusCode.NotFound, "Ponto não encontrado")
             } else {
                 call.respond(ponto)
             }

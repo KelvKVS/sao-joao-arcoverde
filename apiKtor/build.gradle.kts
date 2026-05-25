@@ -26,6 +26,9 @@ dependencies {
     implementation(ktorLibs.server.statusPages)
     implementation(libs.logback.classic)
 
+    // MongoDB Kotlin Driver (Official)
+    implementation("org.mongodb:mongodb-driver-kotlin-coroutine:5.0.1")
+
     testImplementation(kotlin("test"))
     testImplementation(ktorLibs.server.testHost)
 }

@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class LiveResponse(
-    val id: Int,
+    val id: String = "",
     val titulo: String,
     val youtubeUrl: String,
     val ativa: Boolean
