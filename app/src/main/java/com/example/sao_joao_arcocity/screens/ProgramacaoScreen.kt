@@ -3,6 +3,7 @@ package com.example.sao_joao_arcocity.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -15,10 +16,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import android.content.Context
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -26,11 +29,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sao_joao_arcocity.R
+import com.example.sao_joao_arcocity.helpers.reagendarFavoritos
 import com.example.sao_joao_arcocity.models.ProgramacaoResponse
 import com.example.sao_joao_arcocity.network.RetrofitInstance
 import com.example.sao_joao_arcocity.ui.theme.Sao_joao_arcocityTheme
 
 data class EventoProgramacao(
+    val id: String,
     val horario: String,
     val titulo: String,
     val local: String,
@@ -46,7 +51,14 @@ fun ProgramacaoScreen(
     onIrLive: () -> Unit,
     onIrPontos: () -> Unit
 ) {
+    val context = LocalContext.current
+    val prefs = remember { context.getSharedPreferences("SaoJoaoPrefs", Context.MODE_PRIVATE) }
+
     var pesquisa by remember { mutableStateOf("") }
+    var diaSelecionado by remember { mutableStateOf("21 JUN") }
+    var favoritos by remember {
+        mutableStateOf(prefs.getStringSet("favoritos", emptySet())?.toSet() ?: emptySet())
+    }
     var eventos by remember { mutableStateOf<List<EventoProgramacao>>(emptyList()) }
     var carregando by remember { mutableStateOf(true) }
     var erro by remember { mutableStateOf<String?>(null) }
@@ -70,10 +82,11 @@ fun ProgramacaoScreen(
     )
 
     val eventosFiltrados = eventos.filter {
-        pesquisa.isBlank() ||
+        it.dia == diaSelecionado &&
+        (pesquisa.isBlank() ||
                 it.titulo.contains(pesquisa, ignoreCase = true) ||
                 it.categoria.contains(pesquisa, ignoreCase = true) ||
-                it.local.contains(pesquisa, ignoreCase = true)
+                it.local.contains(pesquisa, ignoreCase = true))
     }
 
     Box(
@@ -183,17 +196,19 @@ fun ProgramacaoScreen(
                 contentPadding = PaddingValues(horizontal = 20.dp)
             ) {
                 items(dias) { dia ->
+                    val ativo = dia.dia == diaSelecionado
                     Box(
                         modifier = Modifier
                             .width(78.dp)
                             .height(90.dp)
                             .clip(RoundedCornerShape(18.dp))
+                            .clickable { diaSelecionado = dia.dia }
                             .background(
-                                if (dia.ativo) Color(0xFFFFC107)
+                                if (ativo) Color(0xFFFFC107)
                                 else Color.Transparent
                             )
                             .border(
-                                width = if (dia.ativo) 0.dp else 1.dp,
+                                width = if (ativo) 0.dp else 1.dp,
                                 color = Color.White,
                                 shape = RoundedCornerShape(18.dp)
                             ),
@@ -202,7 +217,7 @@ fun ProgramacaoScreen(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
                                 text = dia.dia,
-                                color = if (dia.ativo) Color.Black else Color.White,
+                                color = if (ativo) Color.Black else Color.White,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp
                             )
@@ -211,7 +226,7 @@ fun ProgramacaoScreen(
 
                             Text(
                                 text = dia.semana,
-                                color = if (dia.ativo) Color.Black else Color.White,
+                                color = if (ativo) Color.Black else Color.White,
                                 fontSize = 12.sp
                             )
                         }
@@ -289,8 +304,21 @@ fun ProgramacaoScreen(
 
                     Image(
                         painter = painterResource(id = R.drawable.star),
-                        contentDescription = null,
-                        modifier = Modifier.size(22.dp)
+                        contentDescription = "Favoritar",
+                        modifier = Modifier
+                            .size(22.dp)
+                            .clickable {
+                                val novosFavoritos = if (evento.id in favoritos)
+                                    favoritos - evento.id
+                                else
+                                    favoritos + evento.id
+                                favoritos = novosFavoritos
+                                prefs.edit().putStringSet("favoritos", novosFavoritos).apply()
+                                reagendarFavoritos(context, novosFavoritos, eventos)
+                            },
+                        colorFilter = ColorFilter.tint(
+                            if (evento.id in favoritos) Color(0xFFFFC107) else Color.White
+                        )
                     )
                 }
 
@@ -322,13 +350,14 @@ fun ProgramacaoScreen(
 
 fun ProgramacaoResponse.toEventoProgramacao(): EventoProgramacao {
     return EventoProgramacao(
-        horario = horario,
-        titulo = titulo,
-        local = local,
-        dia = dia,
-        semana = semana,
+        id        = id,
+        horario   = horario,
+        titulo    = titulo,
+        local     = local,
+        dia       = dia,
+        semana    = semana,
         categoria = categoria,
-        imagem = escolherImagemProgramacao(imagem)
+        imagem    = escolherImagemProgramacao(imagem)
     )
 }
 

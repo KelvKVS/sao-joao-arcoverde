@@ -1,12 +1,17 @@
 package com.example.sao_joao_arcocity
 
+import android.Manifest
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.app.ActivityCompat
+import com.example.sao_joao_arcocity.helpers.agendarResumoDiario
+import com.example.sao_joao_arcocity.helpers.criarCanalNotificacao
 import com.example.sao_joao_arcocity.screens.DetalhePontoScreen
 import com.example.sao_joao_arcocity.screens.HomeScreen
 import com.example.sao_joao_arcocity.screens.LiveScreen
@@ -22,6 +27,17 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        criarCanalNotificacao(this)
+        agendarResumoDiario(this)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                1001
+            )
+        }
 
         enableEdgeToEdge()
 

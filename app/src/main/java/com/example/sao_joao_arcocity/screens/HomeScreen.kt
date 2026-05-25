@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sao_joao_arcocity.R
 import com.example.sao_joao_arcocity.models.BannerResponse
+import com.example.sao_joao_arcocity.models.ProgramacaoResponse
 import com.example.sao_joao_arcocity.network.RetrofitInstance
 import com.example.sao_joao_arcocity.ui.theme.Sao_joao_arcocityTheme
 import kotlinx.coroutines.delay
@@ -57,14 +58,14 @@ fun HomeScreen(
 ) {
     val dias = listOf(
         DiaEvento("21 JUN", "Sexta", true),
-        DiaEvento("22 JUN", "Sabado"),
+        DiaEvento("22 JUN", "Sábado"),
         DiaEvento("23 JUN", "Domingo"),
         DiaEvento("24 JUN", "Segunda")
     )
 
-    var banners by remember {
-        mutableStateOf<List<BannerHome>>(emptyList())
-    }
+    var diaSelecionado by remember { mutableStateOf("21 JUN") }
+    var banners by remember { mutableStateOf<List<BannerHome>>(emptyList()) }
+    var programacoes by remember { mutableStateOf<List<ProgramacaoResponse>>(emptyList()) }
 
     LaunchedEffect(Unit) {
         try {
@@ -78,6 +79,11 @@ fun HomeScreen(
                     imagem = R.drawable.banner
                 )
             )
+        }
+        try {
+            programacoes = RetrofitInstance.api.buscarProgramacoes()
+        } catch (e: Exception) {
+            // mantém lista vazia — card mostra mensagem de indisponível
         }
     }
 
@@ -310,17 +316,19 @@ fun HomeScreen(
                 contentPadding = PaddingValues(horizontal = 16.dp)
             ) {
                 items(dias) { dia ->
+                    val ativo = dia.dia == diaSelecionado
                     Box(
                         modifier = Modifier
                             .width(80.dp)
                             .height(95.dp)
                             .clip(RoundedCornerShape(20.dp))
+                            .clickable { diaSelecionado = dia.dia }
                             .background(
-                                if (dia.ativo) Color(0xFFFFC107)
+                                if (ativo) Color(0xFFFFC107)
                                 else Color.Transparent
                             )
                             .border(
-                                width = if (dia.ativo) 0.dp else 1.dp,
+                                width = if (ativo) 0.dp else 1.dp,
                                 color = Color.White,
                                 shape = RoundedCornerShape(20.dp)
                             ),
@@ -331,7 +339,7 @@ fun HomeScreen(
                         ) {
                             Text(
                                 text = dia.dia,
-                                color = if (dia.ativo) Color.Black else Color.White,
+                                color = if (ativo) Color.Black else Color.White,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp
                             )
@@ -340,7 +348,7 @@ fun HomeScreen(
 
                             Text(
                                 text = dia.semana,
-                                color = if (dia.ativo) Color.Black else Color.White,
+                                color = if (ativo) Color.Black else Color.White,
                                 fontSize = 14.sp
                             )
                         }
@@ -350,10 +358,17 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            val eventosDoDia = programacoes.filter { it.dia == diaSelecionado }
+            val diaInfo = dias.first { it.dia == diaSelecionado }
+            val primeiroEvento = eventosDoDia.firstOrNull()
+            val imagemCard = primeiroEvento?.let {
+                escolherImagemProgramacao(it.imagem)
+            } ?: R.drawable.show
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(135.dp)
+                    .height(155.dp)
                     .padding(horizontal = 16.dp)
                     .clip(RoundedCornerShape(22.dp))
                     .background(Color(0xFF07101D))
@@ -364,7 +379,7 @@ fun HomeScreen(
                         .padding(16.dp)
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.show),
+                        painter = painterResource(id = imagemCard),
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -379,20 +394,29 @@ fun HomeScreen(
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(
-                            text = "21 de Junho - sexta",
+                            text = "${diaSelecionado} - ${diaInfo.semana}",
                             color = Color(0xFFFFC107),
                             fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
+                            fontSize = 15.sp
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        repeat(4) {
+                        if (eventosDoDia.isEmpty()) {
                             Text(
-                                text = "19:00 abertura oficial",
-                                color = Color.White,
-                                fontSize = 14.sp
+                                text = "Nenhum evento encontrado",
+                                color = Color.LightGray,
+                                fontSize = 13.sp
                             )
+                        } else {
+                            eventosDoDia.take(4).forEach { evento ->
+                                Text(
+                                    text = "${evento.horario}  ${evento.titulo}",
+                                    color = Color.White,
+                                    fontSize = 13.sp,
+                                    maxLines = 1
+                                )
+                            }
                         }
                     }
 
@@ -405,9 +429,7 @@ fun HomeScreen(
                                 Color(0xFFFFC107),
                                 CircleShape
                             )
-                            .clickable {
-                                onIrProgramacao()
-                            },
+                            .clickable { onIrProgramacao() },
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
