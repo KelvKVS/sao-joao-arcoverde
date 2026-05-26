@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 data class PontoRequest(
     val nome: String,
     val categoria: String,
+    val tipo: String = "servico",
     val descricao: String,
     val endereco: String,
     val horario: String,

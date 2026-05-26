@@ -17,4 +17,8 @@ sealed class AppRoutes(val route: String) {
     object RotaMapa : AppRoutes("rotaMapa")
 
     object Sobre : AppRoutes("sobre")
+
+    object PontosTuristicos : AppRoutes("pontosTuristicos")
+
+    object Historia : AppRoutes("historia")
 }

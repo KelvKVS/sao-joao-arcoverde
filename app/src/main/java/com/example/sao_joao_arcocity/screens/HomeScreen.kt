@@ -54,7 +54,8 @@ fun HomeScreen(
     onIrProgramacao: () -> Unit,
     onIrLive: () -> Unit,
     onIrPontos: () -> Unit,
-    onIrSobre: () -> Unit
+    onIrSobre: () -> Unit,
+    onIrHistoria: () -> Unit = {}
 ) {
     val dias = listOf(
         DiaEvento("21 JUN", "Sexta", true),
@@ -440,6 +441,83 @@ fun HomeScreen(
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Image(
+                        painter = painterResource(id = R.drawable.info),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        colorFilter = ColorFilter.tint(Color(0xFFFFC107))
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Text(
+                        text = "Explore Arcoverde",
+                        color = Color(0xFFFFC107),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Text(
+                    text = "Conheça a história e cultura do São João!",
+                    color = Color.White,
+                    fontSize = 14.sp
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(Color(0xFF07101D))
+                    .clickable { onIrHistoria() }
+                    .padding(16.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF9B59B6)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.info),
+                            contentDescription = null,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(14.dp))
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "História do São João",
+                            color = Color.White,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Text(
+                            text = "Origem, tradições, cultura e curiosidades",
+                            color = Color.LightGray,
+                            fontSize = 12.sp
+                        )
+                    }
+
+                    Text(text = ">", color = Color(0xFFFFC107), fontSize = 22.sp)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
         BottomBar(

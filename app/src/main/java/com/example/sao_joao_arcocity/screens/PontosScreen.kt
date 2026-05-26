@@ -32,6 +32,7 @@ import com.example.sao_joao_arcocity.ui.theme.Sao_joao_arcocityTheme
 data class PontoCidade(
     val nome: String,
     val categoria: String,
+    val tipo: String = "servico",
     val descricao: String,
     val endereco: String,
     val horario: String,
@@ -41,6 +42,7 @@ data class PontoCidade(
     val latitude: Double,
     val longitude: Double
 )
+
 
 @Composable
 fun PontosScreen(
@@ -55,15 +57,12 @@ fun PontosScreen(
 
     var pesquisa by remember { mutableStateOf("") }
     var categoriaSelecionada by remember { mutableStateOf("Todos") }
+    var tipoSelecionado by remember { mutableStateOf("Serviços") }
 
     LaunchedEffect(Unit) {
         try {
             val resposta = RetrofitInstance.api.buscarPontos()
-
-            pontos = resposta.map { ponto ->
-                ponto.toPontoCidade()
-            }
-
+            pontos = resposta.map { it.toPontoCidade() }
             carregando = false
         } catch (e: Exception) {
             erro = e.message
@@ -71,7 +70,11 @@ fun PontosScreen(
         }
     }
 
-    val pontosFiltrados = pontos.filter { ponto ->
+    val tipoApi = if (tipoSelecionado == "Turísticos") "turistico" else "servico"
+
+    val listaAtual = pontos.filter { ponto ->
+        val combinaTipo = ponto.tipo == tipoApi
+
         val combinaPesquisa =
             pesquisa.isBlank() ||
                     ponto.nome.contains(pesquisa, ignoreCase = true) ||
@@ -79,14 +82,15 @@ fun PontosScreen(
                     ponto.endereco.contains(pesquisa, ignoreCase = true)
 
         val combinaCategoria =
-            categoriaSelecionada == "Todos" ||
+            tipoSelecionado == "Turísticos" ||
+                    categoriaSelecionada == "Todos" ||
                     ponto.categoria.equals(categoriaSelecionada, ignoreCase = true) ||
                     if (categoriaSelecionada == "Serviços")
                         ponto.categoria != "Alimentação"
                     else
                         false
 
-        combinaPesquisa && combinaCategoria
+        combinaTipo && combinaPesquisa && combinaCategoria
     }
 
     Box(
@@ -109,9 +113,7 @@ fun PontosScreen(
         ) {
             Spacer(modifier = Modifier.height(50.dp))
 
-            Column(
-                modifier = Modifier.padding(horizontal = 20.dp)
-            ) {
+            Column(modifier = Modifier.padding(horizontal = 20.dp)) {
                 Text(
                     text = "Pontos da cidade",
                     color = Color.White,
@@ -128,25 +130,56 @@ fun PontosScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
+            // Filtro de tipo (Serviços / Turísticos)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(Color(0xFF101826)),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                listOf("Serviços", "Turísticos").forEach { tipo ->
+                    val ativo = tipoSelecionado == tipo
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(if (ativo) Color(0xFFFFC107) else Color.Transparent)
+                            .clickable {
+                                tipoSelecionado = tipo
+                                pesquisa = ""
+                                categoriaSelecionada = "Todos"
+                            }
+                            .padding(vertical = 12.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = tipo,
+                            color = if (ativo) Color.Black else Color.LightGray,
+                            fontSize = 14.sp,
+                            fontWeight = if (ativo) FontWeight.Bold else FontWeight.Normal
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Barra de busca
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
                     .height(56.dp)
                     .clip(RoundedCornerShape(18.dp))
-                    .border(
-                        1.dp,
-                        Color.White.copy(alpha = 0.4f),
-                        RoundedCornerShape(18.dp)
-                    )
+                    .border(1.dp, Color.White.copy(alpha = 0.4f), RoundedCornerShape(18.dp))
                     .padding(horizontal = 18.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Image(
                         painter = painterResource(id = R.drawable.search),
                         contentDescription = null,
@@ -160,10 +193,7 @@ fun PontosScreen(
                         value = pesquisa,
                         onValueChange = { pesquisa = it },
                         singleLine = true,
-                        textStyle = TextStyle(
-                            color = Color.White,
-                            fontSize = 14.sp
-                        ),
+                        textStyle = TextStyle(color = Color.White, fontSize = 14.sp),
                         modifier = Modifier.fillMaxWidth(),
                         decorationBox = { innerTextField ->
                             if (pesquisa.isBlank()) {
@@ -173,57 +203,61 @@ fun PontosScreen(
                                     fontSize = 14.sp
                                 )
                             }
-
                             innerTextField()
                         }
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            // Filtro de categoria (apenas na aba Serviços)
+            if (tipoSelecionado == "Serviços") {
+                Spacer(modifier = Modifier.height(16.dp))
 
-            Row(
-                modifier = Modifier.padding(horizontal = 20.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                CategoriaChip(
-                    titulo = "Todos",
-                    ativo = categoriaSelecionada == "Todos",
-                    onClick = { categoriaSelecionada = "Todos" }
-                )
+                Row(
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    CategoriaChip(
+                        titulo = "Todos",
+                        ativo = categoriaSelecionada == "Todos",
+                        onClick = { categoriaSelecionada = "Todos" }
+                    )
 
-                CategoriaChip(
-                    titulo = "Alimentação",
-                    ativo = categoriaSelecionada == "Alimentação",
-                    onClick = { categoriaSelecionada = "Alimentação" }
-                )
+                    CategoriaChip(
+                        titulo = "Alimentação",
+                        ativo = categoriaSelecionada == "Alimentação",
+                        onClick = { categoriaSelecionada = "Alimentação" }
+                    )
 
-                CategoriaChip(
-                    titulo = "Serviços",
-                    ativo = categoriaSelecionada == "Serviços",
-                    onClick = { categoriaSelecionada = "Serviços" }
-                )
+                    CategoriaChip(
+                        titulo = "Serviços",
+                        ativo = categoriaSelecionada == "Serviços",
+                        onClick = { categoriaSelecionada = "Serviços" }
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            if (carregando) {
-                Text(
-                    text = "Carregando pontos...",
-                    color = Color.White,
-                    modifier = Modifier.padding(horizontal = 20.dp)
-                )
+            if (tipoSelecionado == "Serviços") {
+                if (carregando) {
+                    Text(
+                        text = "Carregando pontos...",
+                        color = Color.White,
+                        modifier = Modifier.padding(horizontal = 20.dp)
+                    )
+                }
+
+                erro?.let {
+                    Text(
+                        text = "Erro ao carregar: $it",
+                        color = Color.Red,
+                        modifier = Modifier.padding(horizontal = 20.dp)
+                    )
+                }
             }
 
-            erro?.let {
-                Text(
-                    text = "Erro ao carregar: $it",
-                    color = Color.Red,
-                    modifier = Modifier.padding(horizontal = 20.dp)
-                )
-            }
-
-            if (!carregando && erro == null && pontosFiltrados.isEmpty()) {
+            if (!carregando && listaAtual.isEmpty()) {
                 Text(
                     text = "Nenhum ponto encontrado.",
                     color = Color.LightGray,
@@ -231,16 +265,14 @@ fun PontosScreen(
                 )
             }
 
-            pontosFiltrados.forEach { ponto ->
+            listaAtual.forEach { ponto ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp)
                         .clip(RoundedCornerShape(18.dp))
                         .background(Color(0xFF101826))
-                        .clickable {
-                            onAbrirDetalhe(ponto)
-                        }
+                        .clickable { onAbrirDetalhe(ponto) }
                         .padding(horizontal = 16.dp, vertical = 14.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -260,9 +292,7 @@ fun PontosScreen(
 
                     Spacer(modifier = Modifier.width(14.dp))
 
-                    Column(
-                        modifier = Modifier.weight(1f)
-                    ) {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = ponto.nome,
                             color = Color.White,
@@ -279,11 +309,7 @@ fun PontosScreen(
                         )
                     }
 
-                    Text(
-                        text = ">",
-                        color = Color.LightGray,
-                        fontSize = 22.sp
-                    )
+                    Text(text = ">", color = Color.LightGray, fontSize = 22.sp)
                 }
 
                 Spacer(modifier = Modifier.height(14.dp))
@@ -306,11 +332,12 @@ fun PontoResponse.toPontoCidade(): PontoCidade {
     return PontoCidade(
         nome = nome,
         categoria = categoria,
+        tipo = tipo,
         descricao = descricao,
         endereco = endereco,
         horario = horario,
         icone = escolherIcone(categoria),
-        cor = escolherCor(categoria),
+        cor = escolherCor(categoria, tipo),
         fotos = fotos,
         latitude = latitude,
         longitude = longitude
@@ -325,11 +352,21 @@ fun escolherIcone(categoria: String): Int {
     }
 }
 
-fun escolherCor(categoria: String): Color {
+fun escolherCor(categoria: String, tipo: String = "servico"): Color {
+    if (tipo == "turistico") {
+        return when (categoria.lowercase()) {
+            "igreja"    -> Color(0xFF9B59B6)
+            "praça"     -> Color(0xFF27AE60)
+            "natureza"  -> Color(0xFF16A085)
+            "cultura"   -> Color(0xFFE67E22)
+            "comércio"  -> Color(0xFFFFC107)
+            else        -> Color(0xFF2980B9)
+        }
+    }
     return when (categoria.lowercase()) {
         "alimentação" -> Color(0xFFFFC107)
-        "saúde" -> Color(0xFF6ED7C8)
-        else -> Color(0xFF4D8DFF)
+        "saúde"       -> Color(0xFF6ED7C8)
+        else          -> Color(0xFF4D8DFF)
     }
 }
 
@@ -342,24 +379,13 @@ fun CategoriaChip(
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(14.dp))
-            .background(
-                if (ativo)
-                    Color(0xFFFFC107)
-                else
-                    Color(0xFF1A1F25)
-            )
-            .clickable {
-                onClick()
-            }
+            .background(if (ativo) Color(0xFFFFC107) else Color(0xFF1A1F25))
+            .clickable { onClick() }
             .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
         Text(
             text = titulo,
-            color =
-                if (ativo)
-                    Color.Black
-                else
-                    Color.White,
+            color = if (ativo) Color.Black else Color.White,
             fontSize = 12.sp,
             fontWeight = FontWeight.SemiBold
         )

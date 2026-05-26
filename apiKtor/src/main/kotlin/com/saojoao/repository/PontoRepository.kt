@@ -30,6 +30,7 @@ class PontoRepository(database: MongoDatabase) {
         val doc = Document("_id", newId)
             .append("nome", request.nome)
             .append("categoria", request.categoria)
+            .append("tipo", request.tipo)
             .append("descricao", request.descricao)
             .append("endereco", request.endereco)
             .append("horario", request.horario)
@@ -41,6 +42,7 @@ class PontoRepository(database: MongoDatabase) {
             id        = newId.toHexString(),
             nome      = request.nome,
             categoria = request.categoria,
+            tipo      = request.tipo,
             descricao = request.descricao,
             endereco  = request.endereco,
             horario   = request.horario,
@@ -56,6 +58,7 @@ class PontoRepository(database: MongoDatabase) {
             val doc = Document("_id", objectId)
                 .append("nome", request.nome)
                 .append("categoria", request.categoria)
+                .append("tipo", request.tipo)
                 .append("descricao", request.descricao)
                 .append("endereco", request.endereco)
                 .append("horario", request.horario)
@@ -83,6 +86,7 @@ class PontoRepository(database: MongoDatabase) {
         id        = getObjectId("_id").toHexString(),
         nome      = getString("nome") ?: "",
         categoria = getString("categoria") ?: "",
+        tipo      = getString("tipo") ?: "servico",
         descricao = getString("descricao") ?: "",
         endereco  = getString("endereco") ?: "",
         horario   = getString("horario") ?: "",

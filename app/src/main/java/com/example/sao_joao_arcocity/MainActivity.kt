@@ -13,6 +13,7 @@ import androidx.core.app.ActivityCompat
 import com.example.sao_joao_arcocity.helpers.agendarResumoDiario
 import com.example.sao_joao_arcocity.helpers.criarCanalNotificacao
 import com.example.sao_joao_arcocity.screens.DetalhePontoScreen
+import com.example.sao_joao_arcocity.screens.HistoriaScreen
 import com.example.sao_joao_arcocity.screens.HomeScreen
 import com.example.sao_joao_arcocity.screens.LiveScreen
 import com.example.sao_joao_arcocity.screens.LoginScreen
@@ -76,7 +77,8 @@ fun App() {
                 onIrProgramacao = { tela = "programacao" },
                 onIrLive = { tela = "live" },
                 onIrPontos = { tela = "pontos" },
-                onIrSobre = { tela = "sobre" }
+                onIrSobre = { tela = "sobre" },
+                onIrHistoria = { tela = "historia" }
             )
         }
 
@@ -142,6 +144,16 @@ fun App() {
                 onIrProgramacao = { tela = "programacao" },
                 onIrLive = { tela = "live" },
                 onIrPontos = { tela = "pontos" }
+            )
+        }
+
+        "historia" -> {
+            HistoriaScreen(
+                onIrHome = { tela = "home" },
+                onIrProgramacao = { tela = "programacao" },
+                onIrLive = { tela = "live" },
+                onIrPontos = { tela = "pontos" },
+                onIrSobre = { tela = "sobre" }
             )
         }
 
