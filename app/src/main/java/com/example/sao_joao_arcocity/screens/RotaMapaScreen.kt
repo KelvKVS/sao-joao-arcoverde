@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -25,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sao_joao_arcocity.R
+import com.example.sao_joao_arcocity.ui.theme.LocalAppColors
 import com.example.sao_joao_arcocity.ui.theme.Sao_joao_arcocityTheme
 
 @Composable
@@ -32,17 +34,18 @@ fun RotaMapaScreen(
     ponto: PontoCidade,
     onFechar: () -> Unit
 ) {
+    val colors = LocalAppColors.current
     val context = LocalContext.current
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF05080C))
+            .background(colors.fundo)
     ) {
         Image(
             painter = painterResource(id = R.drawable.fundohome),
             contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().alpha(colors.imagemFundoAlpha),
             contentScale = ContentScale.Crop
         )
 
@@ -58,7 +61,7 @@ fun RotaMapaScreen(
             ) {
                 Text(
                     text = "Rota até o destino",
-                    color = Color.White,
+                    color = colors.textoPrimario,
                     fontSize = 14.sp,
                     modifier = Modifier.align(Alignment.Center)
                 )
@@ -67,14 +70,14 @@ fun RotaMapaScreen(
                     modifier = Modifier
                         .size(34.dp)
                         .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.12f))
+                        .background(colors.card)
                         .clickable { onFechar() }
                         .align(Alignment.CenterEnd),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "×",
-                        color = Color.White,
+                        color = colors.textoPrimario,
                         fontSize = 22.sp
                     )
                 }
@@ -137,7 +140,7 @@ fun RotaMapaScreen(
 
             Text(
                 text = "5 min (1,5 km)",
-                color = Color.White,
+                color = colors.textoPrimario,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -146,7 +149,7 @@ fun RotaMapaScreen(
 
             Text(
                 text = "Trajeto mais rápido",
-                color = Color.LightGray,
+                color = colors.textoSecundario,
                 fontSize = 14.sp
             )
 
@@ -157,7 +160,6 @@ fun RotaMapaScreen(
                     val uri = Uri.parse(
                         "google.navigation:q=${ponto.latitude},${ponto.longitude}"
                     )
-
                     val intent = Intent(Intent.ACTION_VIEW, uri)
                     intent.setPackage("com.google.android.apps.maps")
                     context.startActivity(intent)
@@ -198,6 +200,7 @@ fun CampoRota(
     texto: String,
     icone: Int
 ) {
+    val colors = LocalAppColors.current
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -214,17 +217,13 @@ fun CampoRota(
                 .fillMaxWidth()
                 .height(45.dp)
                 .clip(RoundedCornerShape(14.dp))
-                .border(
-                    1.dp,
-                    Color.White.copy(alpha = 0.45f),
-                    RoundedCornerShape(14.dp)
-                )
+                .border(1.dp, colors.bordaBusca, RoundedCornerShape(14.dp))
                 .padding(horizontal = 16.dp),
             contentAlignment = Alignment.CenterStart
         ) {
             Text(
                 text = texto,
-                color = Color.LightGray,
+                color = colors.textoSecundario,
                 fontSize = 13.sp
             )
         }
@@ -237,15 +236,11 @@ fun ChipTempo(
     icone: Int,
     ativo: Boolean = false
 ) {
+    val colors = LocalAppColors.current
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(20.dp))
-            .background(
-                if (ativo)
-                    Color(0xFFBBD6FF)
-                else
-                    Color.Transparent
-            )
+            .background(if (ativo) Color(0xFFBBD6FF) else Color.Transparent)
             .padding(horizontal = 12.dp, vertical = 7.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -259,11 +254,7 @@ fun ChipTempo(
 
         Text(
             text = texto,
-            color =
-                if (ativo)
-                    Color.Black
-                else
-                    Color.White,
+            color = if (ativo) Color.Black else colors.textoPrimario,
             fontSize = 12.sp,
             fontWeight = FontWeight.SemiBold
         )

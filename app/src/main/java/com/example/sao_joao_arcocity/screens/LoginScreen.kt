@@ -23,15 +23,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sao_joao_arcocity.R
+import com.example.sao_joao_arcocity.ui.theme.LocalAppColors
 import com.example.sao_joao_arcocity.ui.theme.Sao_joao_arcocityTheme
 
 @Composable
 fun LoginScreen(
     onEntrar: (String) -> Unit
 ) {
-    var nome by remember {
-        mutableStateOf("")
-    }
+    val colors = LocalAppColors.current
+    var nome by remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier
@@ -103,7 +103,6 @@ fun LoginScreen(
                             fontSize = 18.sp
                         )
                     }
-
                     innerTextField()
                 }
             )
@@ -111,9 +110,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(30.dp))
 
             Button(
-                onClick = {
-                    onEntrar(nome)
-                },
+                onClick = { onEntrar(nome) },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFFFC107)
                 ),
@@ -139,11 +136,7 @@ fun LoginScreen(
 )
 @Composable
 fun LoginScreenPreview() {
-
     Sao_joao_arcocityTheme {
-
-        LoginScreen(
-            onEntrar = {}
-        )
+        LoginScreen(onEntrar = {})
     }
 }

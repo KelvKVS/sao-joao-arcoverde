@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -32,6 +33,7 @@ import com.example.sao_joao_arcocity.R
 import com.example.sao_joao_arcocity.models.BannerResponse
 import com.example.sao_joao_arcocity.models.ProgramacaoResponse
 import com.example.sao_joao_arcocity.network.RetrofitInstance
+import com.example.sao_joao_arcocity.ui.theme.LocalAppColors
 import com.example.sao_joao_arcocity.ui.theme.Sao_joao_arcocityTheme
 import kotlinx.coroutines.delay
 
@@ -55,8 +57,11 @@ fun HomeScreen(
     onIrLive: () -> Unit,
     onIrPontos: () -> Unit,
     onIrSobre: () -> Unit,
-    onIrHistoria: () -> Unit = {}
+    onIrHistoria: () -> Unit = {},
+    onToggleTema: () -> Unit = {}
 ) {
+    val colors = LocalAppColors.current
+
     val dias = listOf(
         DiaEvento("21 JUN", "Sexta", true),
         DiaEvento("22 JUN", "Sábado"),
@@ -84,35 +89,21 @@ fun HomeScreen(
         try {
             programacoes = RetrofitInstance.api.buscarProgramacoes()
         } catch (e: Exception) {
-            // mantém lista vazia — card mostra mensagem de indisponível
+            // mantém lista vazia
         }
     }
 
-    val bannersExibidos =
-        if (banners.isEmpty()) {
-            listOf(
-                BannerHome(
-                    titulo = "São João Arco City",
-                    subtitulo = "Carregando banners...",
-                    imagem = R.drawable.banner
-                )
-            )
-        } else {
-            banners
-        }
+    val bannersExibidos = if (banners.isEmpty()) {
+        listOf(BannerHome("São João Arco City", "Carregando banners...", R.drawable.banner))
+    } else banners
 
-    val pagerState = rememberPagerState(
-        pageCount = { bannersExibidos.size }
-    )
+    val pagerState = rememberPagerState(pageCount = { bannersExibidos.size })
 
     LaunchedEffect(bannersExibidos.size) {
         while (bannersExibidos.size > 1) {
             delay(3000)
-
-            val nextPage =
-                if (pagerState.currentPage == bannersExibidos.lastIndex) 0
-                else pagerState.currentPage + 1
-
+            val nextPage = if (pagerState.currentPage == bannersExibidos.lastIndex) 0
+                           else pagerState.currentPage + 1
             pagerState.animateScrollToPage(nextPage)
         }
     }
@@ -120,13 +111,15 @@ fun HomeScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF05080C))
+            .background(colors.fundo)
     ) {
         Image(
             painter = painterResource(id = R.drawable.fundohome),
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(colors.imagemFundoAlpha)
         )
 
         Column(
@@ -137,6 +130,7 @@ fun HomeScreen(
         ) {
             Spacer(modifier = Modifier.height(50.dp))
 
+            // Header: saudação + toggle tema + notificação
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -147,23 +141,44 @@ fun HomeScreen(
                 Column {
                     Text(
                         text = "Olá, $nome",
-                        color = Color.White,
+                        color = colors.textoPrimario,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.SemiBold
                     )
-
                     Text(
                         text = "Bem-vindo ao",
-                        color = Color.LightGray,
+                        color = colors.textoSecundario,
                         fontSize = 15.sp
                     )
                 }
 
-                Image(
-                    painter = painterResource(id = R.drawable.notification),
-                    contentDescription = null,
-                    modifier = Modifier.size(28.dp)
-                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Botão de trocar tema
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(colors.card)
+                            .clickable { onToggleTema() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = if (colors.isDark) "☀" else "🌙",
+                            fontSize = 18.sp
+                        )
+                    }
+
+                    Image(
+                        painter = painterResource(id = R.drawable.notification),
+                        contentDescription = null,
+                        modifier = Modifier.size(28.dp),
+                        colorFilter = if (!colors.isDark)
+                            ColorFilter.tint(colors.textoPrimario) else null
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(18.dp))
@@ -189,10 +204,9 @@ fun HomeScreen(
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
                     )
-
                     Text(
                         text = "Apoiadores que fazem o são\njoão acontecer!",
-                        color = Color.White,
+                        color = colors.textoPrimario,
                         fontSize = 12.sp,
                         lineHeight = 16.sp
                     )
@@ -201,6 +215,7 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(18.dp))
 
+            // Carrossel de banners
             Column {
                 HorizontalPager(
                     state = pagerState,
@@ -210,9 +225,7 @@ fun HomeScreen(
                     contentPadding = PaddingValues(horizontal = 16.dp),
                     pageSpacing = 14.dp
                 ) { page ->
-
                     val banner = bannersExibidos[page]
-
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -224,13 +237,11 @@ fun HomeScreen(
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize()
                         )
-
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .background(Color.Black.copy(alpha = 0.18f))
                         )
-
                         Column(
                             modifier = Modifier
                                 .align(Alignment.BottomStart)
@@ -242,9 +253,7 @@ fun HomeScreen(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 22.sp
                             )
-
                             Spacer(modifier = Modifier.height(4.dp))
-
                             Text(
                                 text = banner.subtitulo,
                                 color = Color.White.copy(alpha = 0.85f),
@@ -264,15 +273,11 @@ fun HomeScreen(
                         Box(
                             modifier = Modifier
                                 .padding(horizontal = 4.dp)
-                                .size(
-                                    if (pagerState.currentPage == index) 10.dp else 7.dp
-                                )
+                                .size(if (pagerState.currentPage == index) 10.dp else 7.dp)
                                 .clip(CircleShape)
                                 .background(
-                                    if (pagerState.currentPage == index)
-                                        Color(0xFFFFC107)
-                                    else
-                                        Color.White.copy(alpha = 0.35f)
+                                    if (pagerState.currentPage == index) Color(0xFFFFC107)
+                                    else colors.textoSecundario.copy(alpha = 0.35f)
                                 )
                         )
                     }
@@ -281,20 +286,16 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(28.dp))
 
-            Column(
-                modifier = Modifier.padding(horizontal = 16.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+            // Seção Programação
+            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Image(
                         painter = painterResource(id = R.drawable.calendarcheck),
                         contentDescription = null,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(20.dp),
+                        colorFilter = ColorFilter.tint(Color(0xFFFFC107))
                     )
-
                     Spacer(modifier = Modifier.width(8.dp))
-
                     Text(
                         text = "Programação",
                         color = Color(0xFFFFC107),
@@ -302,16 +303,16 @@ fun HomeScreen(
                         fontWeight = FontWeight.Bold
                     )
                 }
-
                 Text(
                     text = "Acompanhe as atrações dos dias de festa!",
-                    color = Color.White,
+                    color = colors.textoPrimario,
                     fontSize = 14.sp
                 )
             }
 
             Spacer(modifier = Modifier.height(22.dp))
 
+            // Seletor de dias
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(14.dp),
                 contentPadding = PaddingValues(horizontal = 16.dp)
@@ -324,32 +325,25 @@ fun HomeScreen(
                             .height(95.dp)
                             .clip(RoundedCornerShape(20.dp))
                             .clickable { diaSelecionado = dia.dia }
-                            .background(
-                                if (ativo) Color(0xFFFFC107)
-                                else Color.Transparent
-                            )
+                            .background(if (ativo) Color(0xFFFFC107) else Color.Transparent)
                             .border(
                                 width = if (ativo) 0.dp else 1.dp,
-                                color = Color.White,
+                                color = colors.textoPrimario,
                                 shape = RoundedCornerShape(20.dp)
                             ),
                         contentAlignment = Alignment.Center
                     ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
                                 text = dia.dia,
-                                color = if (ativo) Color.Black else Color.White,
+                                color = if (ativo) Color.Black else colors.textoPrimario,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp
                             )
-
                             Spacer(modifier = Modifier.height(8.dp))
-
                             Text(
                                 text = dia.semana,
-                                color = if (ativo) Color.Black else Color.White,
+                                color = if (ativo) Color.Black else colors.textoPrimario,
                                 fontSize = 14.sp
                             )
                         }
@@ -362,9 +356,7 @@ fun HomeScreen(
             val eventosDoDia = programacoes.filter { it.dia == diaSelecionado }
             val diaInfo = dias.first { it.dia == diaSelecionado }
             val primeiroEvento = eventosDoDia.firstOrNull()
-            val imagemCard = primeiroEvento?.let {
-                escolherImagemProgramacao(it.imagem)
-            } ?: R.drawable.show
+            val imagemCard = primeiroEvento?.let { escolherImagemProgramacao(it.imagem) } ?: R.drawable.show
 
             Box(
                 modifier = Modifier
@@ -372,7 +364,7 @@ fun HomeScreen(
                     .height(155.dp)
                     .padding(horizontal = 16.dp)
                     .clip(RoundedCornerShape(22.dp))
-                    .background(Color(0xFF07101D))
+                    .background(colors.cardAlt)
             ) {
                 Row(
                     modifier = Modifier
@@ -391,29 +383,25 @@ fun HomeScreen(
 
                     Spacer(modifier = Modifier.width(14.dp))
 
-                    Column(
-                        modifier = Modifier.weight(1f)
-                    ) {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "${diaSelecionado} - ${diaInfo.semana}",
+                            text = "$diaSelecionado - ${diaInfo.semana}",
                             color = Color(0xFFFFC107),
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp
                         )
-
                         Spacer(modifier = Modifier.height(8.dp))
-
                         if (eventosDoDia.isEmpty()) {
                             Text(
                                 text = "Nenhum evento encontrado",
-                                color = Color.LightGray,
+                                color = colors.textoSecundario,
                                 fontSize = 13.sp
                             )
                         } else {
                             eventosDoDia.take(4).forEach { evento ->
                                 Text(
                                     text = "${evento.horario}  ${evento.titulo}",
-                                    color = Color.White,
+                                    color = colors.textoPrimario,
                                     fontSize = 13.sp,
                                     maxLines = 1
                                 )
@@ -425,25 +413,18 @@ fun HomeScreen(
                         modifier = Modifier
                             .size(42.dp)
                             .clip(CircleShape)
-                            .border(
-                                1.dp,
-                                Color(0xFFFFC107),
-                                CircleShape
-                            )
+                            .border(1.dp, Color(0xFFFFC107), CircleShape)
                             .clickable { onIrProgramacao() },
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = ">",
-                            color = Color(0xFFFFC107),
-                            fontSize = 22.sp
-                        )
+                        Text(text = ">", color = Color(0xFFFFC107), fontSize = 22.sp)
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // Card História do São João
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Image(
@@ -452,9 +433,7 @@ fun HomeScreen(
                         modifier = Modifier.size(20.dp),
                         colorFilter = ColorFilter.tint(Color(0xFFFFC107))
                     )
-
                     Spacer(modifier = Modifier.width(8.dp))
-
                     Text(
                         text = "Explore Arcoverde",
                         color = Color(0xFFFFC107),
@@ -462,10 +441,9 @@ fun HomeScreen(
                         fontWeight = FontWeight.Bold
                     )
                 }
-
                 Text(
                     text = "Conheça a história e cultura do São João!",
-                    color = Color.White,
+                    color = colors.textoPrimario,
                     fontSize = 14.sp
                 )
             }
@@ -477,7 +455,7 @@ fun HomeScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
                     .clip(RoundedCornerShape(20.dp))
-                    .background(Color(0xFF07101D))
+                    .background(colors.cardAlt)
                     .clickable { onIrHistoria() }
                     .padding(16.dp)
             ) {
@@ -495,24 +473,20 @@ fun HomeScreen(
                             modifier = Modifier.size(22.dp)
                         )
                     }
-
                     Spacer(modifier = Modifier.width(14.dp))
-
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = "História do São João",
-                            color = Color.White,
+                            color = colors.textoPrimario,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold
                         )
-
                         Text(
                             text = "Origem, tradições, cultura e curiosidades",
-                            color = Color.LightGray,
+                            color = colors.textoSecundario,
                             fontSize = 12.sp
                         )
                     }
-
                     Text(text = ">", color = Color(0xFFFFC107), fontSize = 22.sp)
                 }
             }
@@ -543,10 +517,10 @@ fun BannerResponse.toBannerHome(): BannerHome {
 fun escolherImagemBanner(imagem: String): Int {
     return when (imagem.lowercase()) {
         "banner.png" -> R.drawable.banner
-        "show.png" -> R.drawable.show
-        "forro.png" -> R.drawable.forro
-        "trio.png" -> R.drawable.trio
-        else -> R.drawable.banner
+        "show.png"   -> R.drawable.show
+        "forro.png"  -> R.drawable.forro
+        "trio.png"   -> R.drawable.trio
+        else         -> R.drawable.banner
     }
 }
 
@@ -560,52 +534,24 @@ fun BottomBar(
     onpontosClick: () -> Unit,
     onSobreClick: () -> Unit
 ) {
+    val colors = LocalAppColors.current
     Box(
         modifier = modifier
             .fillMaxWidth()
             .navigationBarsPadding()
             .height(82.dp)
-            .background(Color(0xCC0B0F14))
+            .background(colors.barra)
     ) {
         Row(
             modifier = Modifier.fillMaxSize(),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            BottomItem(
-                icon = R.drawable.home,
-                title = "Home",
-                ativo = telaAtual == "home",
-                onClick = onHomeClick
-            )
-
-            BottomItem(
-                icon = R.drawable.calendar,
-                title = "Programação",
-                ativo = telaAtual == "programacao",
-                onClick = onProgramacaoClick
-            )
-
-            BottomItem(
-                icon = R.drawable.live,
-                title = "Live",
-                ativo = telaAtual == "live",
-                onClick = onLiveClick
-            )
-
-            BottomItem(
-                icon = R.drawable.location,
-                title = "Pontos",
-                ativo = telaAtual == "pontos",
-                onClick = onpontosClick
-            )
-
-            BottomItem(
-                icon = R.drawable.info,
-                title = "Sobre",
-                ativo = telaAtual == "sobre",
-                onClick = onSobreClick
-            )
+            BottomItem(icon = R.drawable.home,     title = "Home",       ativo = telaAtual == "home",       onClick = onHomeClick)
+            BottomItem(icon = R.drawable.calendar, title = "Programação", ativo = telaAtual == "programacao", onClick = onProgramacaoClick)
+            BottomItem(icon = R.drawable.live,     title = "Live",       ativo = telaAtual == "live",       onClick = onLiveClick)
+            BottomItem(icon = R.drawable.location, title = "Pontos",     ativo = telaAtual == "pontos",     onClick = onpontosClick)
+            BottomItem(icon = R.drawable.info,     title = "Sobre",      ativo = telaAtual == "sobre",      onClick = onSobreClick)
         }
     }
 }
@@ -617,27 +563,23 @@ fun BottomItem(
     ativo: Boolean = false,
     onClick: () -> Unit
 ) {
+    val colors = LocalAppColors.current
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable {
-            onClick()
-        }
+        modifier = Modifier.clickable { onClick() }
     ) {
         Image(
             painter = painterResource(id = icon),
             contentDescription = null,
             modifier = Modifier.size(26.dp),
             colorFilter = ColorFilter.tint(
-                if (ativo) Color(0xFFFFC107)
-                else Color.LightGray
+                if (ativo) Color(0xFFFFC107) else colors.textoSecundario
             )
         )
-
         Spacer(modifier = Modifier.height(4.dp))
-
         Text(
             text = title,
-            color = if (ativo) Color(0xFFFFC107) else Color.LightGray,
+            color = if (ativo) Color(0xFFFFC107) else colors.textoSecundario,
             fontSize = 12.sp
         )
     }

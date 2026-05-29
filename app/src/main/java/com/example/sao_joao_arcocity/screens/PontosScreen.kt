@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -27,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import com.example.sao_joao_arcocity.R
 import com.example.sao_joao_arcocity.models.PontoResponse
 import com.example.sao_joao_arcocity.network.RetrofitInstance
+import com.example.sao_joao_arcocity.ui.theme.LocalAppColors
 import com.example.sao_joao_arcocity.ui.theme.Sao_joao_arcocityTheme
 
 data class PontoCidade(
@@ -51,6 +53,8 @@ fun PontosScreen(
     onIrLive: () -> Unit,
     onAbrirDetalhe: (PontoCidade) -> Unit
 ) {
+    val colors = LocalAppColors.current
+
     var pontos by remember { mutableStateOf<List<PontoCidade>>(emptyList()) }
     var carregando by remember { mutableStateOf(true) }
     var erro by remember { mutableStateOf<String?>(null) }
@@ -96,12 +100,12 @@ fun PontosScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF05080C))
+            .background(colors.fundo)
     ) {
         Image(
             painter = painterResource(id = R.drawable.fundohome),
             contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().alpha(colors.imagemFundoAlpha),
             contentScale = ContentScale.Crop
         )
 
@@ -116,7 +120,7 @@ fun PontosScreen(
             Column(modifier = Modifier.padding(horizontal = 20.dp)) {
                 Text(
                     text = "Pontos da cidade",
-                    color = Color.White,
+                    color = colors.textoPrimario,
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -125,7 +129,7 @@ fun PontosScreen(
 
                 Text(
                     text = "Descubra lugares e serviços locais",
-                    color = Color.LightGray,
+                    color = colors.textoSecundario,
                     fontSize = 14.sp
                 )
             }
@@ -138,7 +142,7 @@ fun PontosScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(Color(0xFF101826)),
+                    .background(colors.card),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 listOf("Serviços", "Turísticos").forEach { tipo ->
@@ -158,7 +162,7 @@ fun PontosScreen(
                     ) {
                         Text(
                             text = tipo,
-                            color = if (ativo) Color.Black else Color.LightGray,
+                            color = if (ativo) Color.Black else colors.textoSecundario,
                             fontSize = 14.sp,
                             fontWeight = if (ativo) FontWeight.Bold else FontWeight.Normal
                         )
@@ -175,7 +179,7 @@ fun PontosScreen(
                     .padding(horizontal = 20.dp)
                     .height(56.dp)
                     .clip(RoundedCornerShape(18.dp))
-                    .border(1.dp, Color.White.copy(alpha = 0.4f), RoundedCornerShape(18.dp))
+                    .border(1.dp, colors.bordaBusca, RoundedCornerShape(18.dp))
                     .padding(horizontal = 18.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
@@ -184,7 +188,7 @@ fun PontosScreen(
                         painter = painterResource(id = R.drawable.search),
                         contentDescription = null,
                         modifier = Modifier.size(18.dp),
-                        colorFilter = ColorFilter.tint(Color.Gray)
+                        colorFilter = ColorFilter.tint(colors.textoTerciario)
                     )
 
                     Spacer(modifier = Modifier.width(12.dp))
@@ -193,13 +197,13 @@ fun PontosScreen(
                         value = pesquisa,
                         onValueChange = { pesquisa = it },
                         singleLine = true,
-                        textStyle = TextStyle(color = Color.White, fontSize = 14.sp),
+                        textStyle = TextStyle(color = colors.textoPrimario, fontSize = 14.sp),
                         modifier = Modifier.fillMaxWidth(),
                         decorationBox = { innerTextField ->
                             if (pesquisa.isBlank()) {
                                 Text(
                                     text = "Buscar por nome ou categoria",
-                                    color = Color.Gray,
+                                    color = colors.textoTerciario,
                                     fontSize = 14.sp
                                 )
                             }
@@ -243,7 +247,7 @@ fun PontosScreen(
                 if (carregando) {
                     Text(
                         text = "Carregando pontos...",
-                        color = Color.White,
+                        color = colors.textoPrimario,
                         modifier = Modifier.padding(horizontal = 20.dp)
                     )
                 }
@@ -260,7 +264,7 @@ fun PontosScreen(
             if (!carregando && listaAtual.isEmpty()) {
                 Text(
                     text = "Nenhum ponto encontrado.",
-                    color = Color.LightGray,
+                    color = colors.textoSecundario,
                     modifier = Modifier.padding(horizontal = 20.dp)
                 )
             }
@@ -271,7 +275,7 @@ fun PontosScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp)
                         .clip(RoundedCornerShape(18.dp))
-                        .background(Color(0xFF101826))
+                        .background(colors.card)
                         .clickable { onAbrirDetalhe(ponto) }
                         .padding(horizontal = 16.dp, vertical = 14.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -295,7 +299,7 @@ fun PontosScreen(
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = ponto.nome,
-                            color = Color.White,
+                            color = colors.textoPrimario,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -304,12 +308,12 @@ fun PontosScreen(
 
                         Text(
                             text = ponto.categoria,
-                            color = Color.LightGray,
+                            color = colors.textoSecundario,
                             fontSize = 13.sp
                         )
                     }
 
-                    Text(text = ">", color = Color.LightGray, fontSize = 22.sp)
+                    Text(text = ">", color = colors.textoSecundario, fontSize = 22.sp)
                 }
 
                 Spacer(modifier = Modifier.height(14.dp))
@@ -376,16 +380,17 @@ fun CategoriaChip(
     ativo: Boolean = false,
     onClick: () -> Unit
 ) {
+    val colors = LocalAppColors.current
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(14.dp))
-            .background(if (ativo) Color(0xFFFFC107) else Color(0xFF1A1F25))
+            .background(if (ativo) Color(0xFFFFC107) else colors.chip)
             .clickable { onClick() }
             .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
         Text(
             text = titulo,
-            color = if (ativo) Color.Black else Color.White,
+            color = if (ativo) Color.Black else colors.textoPrimario,
             fontSize = 12.sp,
             fontWeight = FontWeight.SemiBold
         )

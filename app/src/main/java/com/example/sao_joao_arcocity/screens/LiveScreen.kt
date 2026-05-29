@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -28,6 +29,7 @@ import com.example.sao_joao_arcocity.R
 import com.example.sao_joao_arcocity.models.LiveResponse
 import com.example.sao_joao_arcocity.models.ProgramacaoResponse
 import com.example.sao_joao_arcocity.network.RetrofitInstance
+import com.example.sao_joao_arcocity.ui.theme.LocalAppColors
 import com.example.sao_joao_arcocity.ui.theme.Sao_joao_arcocityTheme
 
 data class LiveEvento(
@@ -44,6 +46,7 @@ fun LiveScreen(
     onIrProgramacao: () -> Unit,
     onIrPontos: () -> Unit
 ) {
+    val colors = LocalAppColors.current
     val context = LocalContext.current
 
     var live by remember { mutableStateOf<LiveResponse?>(null) }
@@ -69,12 +72,12 @@ fun LiveScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF05080C))
+            .background(colors.fundo)
     ) {
         Image(
             painter = painterResource(id = R.drawable.fundohome),
             contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().alpha(colors.imagemFundoAlpha),
             contentScale = ContentScale.Crop
         )
 
@@ -91,7 +94,7 @@ fun LiveScreen(
             ) {
                 Text(
                     text = "Transmissão ao vivo",
-                    color = Color.White,
+                    color = colors.textoPrimario,
                     fontSize = 26.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -100,7 +103,7 @@ fun LiveScreen(
 
                 Text(
                     text = live?.titulo ?: "Acompanhe a festa em tempo real!",
-                    color = Color.LightGray,
+                    color = colors.textoSecundario,
                     fontSize = 14.sp
                 )
             }
@@ -167,7 +170,7 @@ fun LiveScreen(
 
             Text(
                 text = "Próximas atrações",
-                color = Color.White,
+                color = colors.textoPrimario,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(horizontal = 20.dp)
@@ -178,7 +181,7 @@ fun LiveScreen(
             if (carregando) {
                 Text(
                     text = "Carregando live...",
-                    color = Color.White,
+                    color = colors.textoPrimario,
                     modifier = Modifier.padding(horizontal = 20.dp)
                 )
             }
@@ -210,7 +213,7 @@ fun LiveScreen(
 
                         Text(
                             text = evento.semana,
-                            color = Color.LightGray,
+                            color = colors.textoSecundario,
                             fontSize = 12.sp
                         )
                     }
@@ -233,14 +236,14 @@ fun LiveScreen(
                     ) {
                         Text(
                             text = evento.titulo,
-                            color = Color.White,
+                            color = colors.textoPrimario,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold
                         )
 
                         Text(
                             text = evento.local,
-                            color = Color.LightGray,
+                            color = colors.textoSecundario,
                             fontSize = 13.sp
                         )
                     }
@@ -248,7 +251,8 @@ fun LiveScreen(
                     Image(
                         painter = painterResource(id = R.drawable.star),
                         contentDescription = null,
-                        modifier = Modifier.size(22.dp)
+                        modifier = Modifier.size(22.dp),
+                        colorFilter = ColorFilter.tint(colors.textoTerciario)
                     )
                 }
 
@@ -259,7 +263,7 @@ fun LiveScreen(
                         .fillMaxWidth()
                         .height(1.dp)
                         .padding(horizontal = 20.dp)
-                        .background(Color.White.copy(alpha = 0.15f))
+                        .background(colors.divisor)
                 )
 
                 Spacer(modifier = Modifier.height(18.dp))

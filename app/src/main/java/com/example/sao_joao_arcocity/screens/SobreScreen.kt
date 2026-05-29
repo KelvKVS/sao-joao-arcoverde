@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -19,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sao_joao_arcocity.R
+import com.example.sao_joao_arcocity.ui.theme.LocalAppColors
 import com.example.sao_joao_arcocity.ui.theme.Sao_joao_arcocityTheme
 
 data class DevSobre(
@@ -33,6 +35,8 @@ fun SobreScreen(
     onIrLive: () -> Unit,
     onIrPontos: () -> Unit
 ) {
+    val colors = LocalAppColors.current
+
     val devs = listOf(
         DevSobre("Intalou", R.drawable.italo),
         DevSobre("Kelvis duran", R.drawable.kelvis),
@@ -45,12 +49,12 @@ fun SobreScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF05080C))
+            .background(colors.fundo)
     ) {
         Image(
             painter = painterResource(id = R.drawable.fundohome),
             contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().alpha(colors.imagemFundoAlpha),
             contentScale = ContentScale.Crop
         )
 
@@ -84,7 +88,7 @@ fun SobreScreen(
 
             Text(
                 text = "O São João de ArcoCity foi desenvolvido para aproximar a população da programação do São João de Arcoverde, além de destacar os principais pontos da cidade e transmitir ao vivo os melhores momentos da festa.",
-                color = Color.White,
+                color = colors.textoPrimario,
                 fontSize = 12.sp,
                 lineHeight = 16.sp,
                 modifier = Modifier.fillMaxWidth()
@@ -168,7 +172,7 @@ fun SobreScreen(
 
             Text(
                 text = "William S De Jesus",
-                color = Color.White,
+                color = colors.textoPrimario,
                 fontSize = 12.sp
             )
 
@@ -226,6 +230,7 @@ fun SecaoTitulo(
 fun DevItem(
     dev: DevSobre
 ) {
+    val colors = LocalAppColors.current
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.width(80.dp)
@@ -251,7 +256,7 @@ fun DevItem(
 
         Text(
             text = dev.nome,
-            color = Color.White,
+            color = colors.textoPrimario,
             fontSize = 10.sp
         )
     }

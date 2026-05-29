@@ -22,7 +22,10 @@ import com.example.sao_joao_arcocity.screens.PontosScreen
 import com.example.sao_joao_arcocity.screens.ProgramacaoScreen
 import com.example.sao_joao_arcocity.screens.RotaMapaScreen
 import com.example.sao_joao_arcocity.screens.SobreScreen
+import com.example.sao_joao_arcocity.ui.theme.LocalAppColors
 import com.example.sao_joao_arcocity.ui.theme.Sao_joao_arcocityTheme
+import com.example.sao_joao_arcocity.ui.theme.TemaClaro
+import com.example.sao_joao_arcocity.ui.theme.TemaEscuro
 
 class MainActivity : ComponentActivity() {
 
@@ -53,8 +56,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App() {
     val context = LocalContext.current
-    val sharedPreferences = remember { 
-        context.getSharedPreferences("SaoJoaoPrefs", Context.MODE_PRIVATE) 
+    val sharedPreferences = remember {
+        context.getSharedPreferences("SaoJoaoPrefs", Context.MODE_PRIVATE)
     }
 
     var nomeUsuario by remember {
@@ -69,106 +72,103 @@ fun App() {
         mutableStateOf<PontoCidade?>(null)
     }
 
-    when (tela) {
+    var isDark by remember { mutableStateOf(true) }
+    val cores = if (isDark) TemaEscuro else TemaClaro
 
-        "home" -> {
-            HomeScreen(
-                nome = nomeUsuario,
-                onIrProgramacao = { tela = "programacao" },
-                onIrLive = { tela = "live" },
-                onIrPontos = { tela = "pontos" },
-                onIrSobre = { tela = "sobre" },
-                onIrHistoria = { tela = "historia" }
-            )
-        }
+    CompositionLocalProvider(LocalAppColors provides cores) {
+        when (tela) {
 
-        "programacao" -> {
-            ProgramacaoScreen(
-                onIrHome = { tela = "home" },
-                onIrLive = { tela = "live" },
-                onIrPontos = { tela = "pontos" },
+            "home" -> {
+                HomeScreen(
+                    nome = nomeUsuario,
+                    onIrProgramacao = { tela = "programacao" },
+                    onIrLive = { tela = "live" },
+                    onIrPontos = { tela = "pontos" },
+                    onIrSobre = { tela = "sobre" },
+                    onIrHistoria = { tela = "historia" },
+                    onToggleTema = { isDark = !isDark }
+                )
+            }
 
-            )
-        }
+            "programacao" -> {
+                ProgramacaoScreen(
+                    onIrHome = { tela = "home" },
+                    onIrLive = { tela = "live" },
+                    onIrPontos = { tela = "pontos" },
+                )
+            }
 
-        "live" -> {
-            LiveScreen(
-                onIrHome = { tela = "home" },
-                onIrProgramacao = { tela = "programacao" },
-                onIrPontos = { tela = "pontos" },
+            "live" -> {
+                LiveScreen(
+                    onIrHome = { tela = "home" },
+                    onIrProgramacao = { tela = "programacao" },
+                    onIrPontos = { tela = "pontos" },
+                )
+            }
 
-            )
-        }
-
-        "pontos" -> {
-            PontosScreen(
-                onIrHome = { tela = "home" },
-                onIrProgramacao = { tela = "programacao" },
-                onIrLive = { tela = "live" },
-
-                onAbrirDetalhe = { ponto ->
-                    pontoSelecionado = ponto
-                    tela = "detalhePonto"
-                }
-            )
-        }
-
-        "detalhePonto" -> {
-            pontoSelecionado?.let { ponto ->
-                DetalhePontoScreen(
-                    ponto = ponto,
-                    onVoltar = { tela = "pontos" },
+            "pontos" -> {
+                PontosScreen(
                     onIrHome = { tela = "home" },
                     onIrProgramacao = { tela = "programacao" },
                     onIrLive = { tela = "live" },
-
-                    onVerMapa = { tela = "rotaMapa" }
-                )
-            }
-        }
-
-        "rotaMapa" -> {
-            pontoSelecionado?.let { ponto ->
-                RotaMapaScreen(
-                    ponto = ponto,
-                    onFechar = {
+                    onAbrirDetalhe = { ponto ->
+                        pontoSelecionado = ponto
                         tela = "detalhePonto"
                     }
                 )
             }
-        }
 
-        "sobre" -> {
-            SobreScreen(
-                onIrHome = { tela = "home" },
-                onIrProgramacao = { tela = "programacao" },
-                onIrLive = { tela = "live" },
-                onIrPontos = { tela = "pontos" }
-            )
-        }
-
-        "historia" -> {
-            HistoriaScreen(
-                onIrHome = { tela = "home" },
-                onIrProgramacao = { tela = "programacao" },
-                onIrLive = { tela = "live" },
-                onIrPontos = { tela = "pontos" },
-                onIrSobre = { tela = "sobre" }
-            )
-        }
-
-        else -> {
-            LoginScreen(
-                onEntrar = { nome ->
-                    val nomeSalvo = if (nome.isBlank()) "usuario" else nome
-                    nomeUsuario = nomeSalvo
-                    
-                    // Salva no SharedPreferences para não pedir na próxima vez
-                    sharedPreferences.edit().putString("nomeUsuario", nomeSalvo).apply()
-                    
-                    tela = "home"
+            "detalhePonto" -> {
+                pontoSelecionado?.let { ponto ->
+                    DetalhePontoScreen(
+                        ponto = ponto,
+                        onVoltar = { tela = "pontos" },
+                        onIrHome = { tela = "home" },
+                        onIrProgramacao = { tela = "programacao" },
+                        onIrLive = { tela = "live" },
+                        onVerMapa = { tela = "rotaMapa" }
+                    )
                 }
-            )
+            }
+
+            "rotaMapa" -> {
+                pontoSelecionado?.let { ponto ->
+                    RotaMapaScreen(
+                        ponto = ponto,
+                        onFechar = { tela = "detalhePonto" }
+                    )
+                }
+            }
+
+            "sobre" -> {
+                SobreScreen(
+                    onIrHome = { tela = "home" },
+                    onIrProgramacao = { tela = "programacao" },
+                    onIrLive = { tela = "live" },
+                    onIrPontos = { tela = "pontos" }
+                )
+            }
+
+            "historia" -> {
+                HistoriaScreen(
+                    onIrHome = { tela = "home" },
+                    onIrProgramacao = { tela = "programacao" },
+                    onIrLive = { tela = "live" },
+                    onIrPontos = { tela = "pontos" },
+                    onIrSobre = { tela = "sobre" }
+                )
+            }
+
+            else -> {
+                LoginScreen(
+                    onEntrar = { nome ->
+                        val nomeSalvo = if (nome.isBlank()) "usuario" else nome
+                        nomeUsuario = nomeSalvo
+                        sharedPreferences.edit().putString("nomeUsuario", nomeSalvo).apply()
+                        tela = "home"
+                    }
+                )
+            }
         }
     }
 }

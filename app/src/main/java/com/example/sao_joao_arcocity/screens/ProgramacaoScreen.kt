@@ -17,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import android.content.Context
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -32,6 +33,7 @@ import com.example.sao_joao_arcocity.R
 import com.example.sao_joao_arcocity.helpers.reagendarFavoritos
 import com.example.sao_joao_arcocity.models.ProgramacaoResponse
 import com.example.sao_joao_arcocity.network.RetrofitInstance
+import com.example.sao_joao_arcocity.ui.theme.LocalAppColors
 import com.example.sao_joao_arcocity.ui.theme.Sao_joao_arcocityTheme
 
 data class EventoProgramacao(
@@ -51,6 +53,7 @@ fun ProgramacaoScreen(
     onIrLive: () -> Unit,
     onIrPontos: () -> Unit
 ) {
+    val colors = LocalAppColors.current
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("SaoJoaoPrefs", Context.MODE_PRIVATE) }
 
@@ -92,12 +95,12 @@ fun ProgramacaoScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF05080C))
+            .background(colors.fundo)
     ) {
         Image(
             painter = painterResource(id = R.drawable.fundohome),
             contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().alpha(colors.imagemFundoAlpha),
             contentScale = ContentScale.Crop
         )
 
@@ -119,7 +122,7 @@ fun ProgramacaoScreen(
                 Column {
                     Text(
                         text = "Programação",
-                        color = Color.White,
+                        color = colors.textoPrimario,
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -128,7 +131,7 @@ fun ProgramacaoScreen(
 
                     Text(
                         text = "Confira a agenda dos dias de festa!",
-                        color = Color.LightGray,
+                        color = colors.textoSecundario,
                         fontSize = 14.sp
                     )
                 }
@@ -136,7 +139,8 @@ fun ProgramacaoScreen(
                 Image(
                     painter = painterResource(id = R.drawable.notification),
                     contentDescription = null,
-                    modifier = Modifier.size(26.dp)
+                    modifier = Modifier.size(26.dp),
+                    colorFilter = ColorFilter.tint(colors.textoPrimario)
                 )
             }
 
@@ -148,11 +152,7 @@ fun ProgramacaoScreen(
                     .padding(horizontal = 20.dp)
                     .height(56.dp)
                     .clip(RoundedCornerShape(18.dp))
-                    .border(
-                        1.dp,
-                        Color.White.copy(alpha = 0.4f),
-                        RoundedCornerShape(18.dp)
-                    )
+                    .border(1.dp, colors.bordaBusca, RoundedCornerShape(18.dp))
                     .padding(horizontal = 18.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
@@ -161,7 +161,7 @@ fun ProgramacaoScreen(
                         painter = painterResource(id = R.drawable.search),
                         contentDescription = null,
                         modifier = Modifier.size(18.dp),
-                        colorFilter = ColorFilter.tint(Color.Gray)
+                        colorFilter = ColorFilter.tint(colors.textoTerciario)
                     )
 
                     Spacer(modifier = Modifier.width(12.dp))
@@ -170,7 +170,7 @@ fun ProgramacaoScreen(
                         value = pesquisa,
                         onValueChange = { pesquisa = it },
                         textStyle = TextStyle(
-                            color = Color.White,
+                            color = colors.textoPrimario,
                             fontSize = 15.sp
                         ),
                         singleLine = true,
@@ -178,11 +178,10 @@ fun ProgramacaoScreen(
                             if (pesquisa.isEmpty()) {
                                 Text(
                                     text = "Buscar por nome ou categoria",
-                                    color = Color.Gray,
+                                    color = colors.textoTerciario,
                                     fontSize = 14.sp
                                 )
                             }
-
                             innerTextField()
                         }
                     )
@@ -203,13 +202,10 @@ fun ProgramacaoScreen(
                             .height(90.dp)
                             .clip(RoundedCornerShape(18.dp))
                             .clickable { diaSelecionado = dia.dia }
-                            .background(
-                                if (ativo) Color(0xFFFFC107)
-                                else Color.Transparent
-                            )
+                            .background(if (ativo) Color(0xFFFFC107) else Color.Transparent)
                             .border(
                                 width = if (ativo) 0.dp else 1.dp,
-                                color = Color.White,
+                                color = colors.textoPrimario,
                                 shape = RoundedCornerShape(18.dp)
                             ),
                         contentAlignment = Alignment.Center
@@ -217,7 +213,7 @@ fun ProgramacaoScreen(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
                                 text = dia.dia,
-                                color = if (ativo) Color.Black else Color.White,
+                                color = if (ativo) Color.Black else colors.textoPrimario,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp
                             )
@@ -226,7 +222,7 @@ fun ProgramacaoScreen(
 
                             Text(
                                 text = dia.semana,
-                                color = if (ativo) Color.Black else Color.White,
+                                color = if (ativo) Color.Black else colors.textoPrimario,
                                 fontSize = 12.sp
                             )
                         }
@@ -239,7 +235,7 @@ fun ProgramacaoScreen(
             if (carregando) {
                 Text(
                     text = "Carregando programação...",
-                    color = Color.White,
+                    color = colors.textoPrimario,
                     modifier = Modifier.padding(horizontal = 20.dp)
                 )
             }
@@ -269,7 +265,7 @@ fun ProgramacaoScreen(
 
                         Text(
                             text = evento.semana,
-                            color = Color.LightGray,
+                            color = colors.textoSecundario,
                             fontSize = 12.sp
                         )
                     }
@@ -290,14 +286,14 @@ fun ProgramacaoScreen(
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = evento.titulo,
-                            color = Color.White,
+                            color = colors.textoPrimario,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold
                         )
 
                         Text(
                             text = evento.local,
-                            color = Color.LightGray,
+                            color = colors.textoSecundario,
                             fontSize = 13.sp
                         )
                     }
@@ -317,7 +313,7 @@ fun ProgramacaoScreen(
                                 reagendarFavoritos(context, novosFavoritos, eventos)
                             },
                         colorFilter = ColorFilter.tint(
-                            if (evento.id in favoritos) Color(0xFFFFC107) else Color.White
+                            if (evento.id in favoritos) Color(0xFFFFC107) else colors.textoPrimario
                         )
                     )
                 }
@@ -329,7 +325,7 @@ fun ProgramacaoScreen(
                         .fillMaxWidth()
                         .height(1.dp)
                         .padding(horizontal = 20.dp)
-                        .background(Color.White.copy(alpha = 0.15f))
+                        .background(colors.divisor)
                 )
 
                 Spacer(modifier = Modifier.height(18.dp))

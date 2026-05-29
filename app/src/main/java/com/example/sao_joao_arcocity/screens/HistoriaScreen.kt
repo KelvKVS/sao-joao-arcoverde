@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -20,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sao_joao_arcocity.R
+import com.example.sao_joao_arcocity.ui.theme.LocalAppColors
 
 @Composable
 fun HistoriaScreen(
@@ -29,15 +31,17 @@ fun HistoriaScreen(
     onIrPontos: () -> Unit,
     onIrSobre: () -> Unit
 ) {
+    val colors = LocalAppColors.current
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF05080C))
+            .background(colors.fundo)
     ) {
         Image(
             painter = painterResource(id = R.drawable.fundohome),
             contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().alpha(colors.imagemFundoAlpha),
             contentScale = ContentScale.Crop
         )
 
@@ -59,13 +63,13 @@ fun HistoriaScreen(
                     modifier = Modifier
                         .size(38.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFF1A1F25))
+                        .background(colors.chip)
                         .clickable { onIrHome() },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "<",
-                        color = Color.White,
+                        color = colors.textoPrimario,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -76,14 +80,14 @@ fun HistoriaScreen(
                 Column {
                     Text(
                         text = "História do São João",
-                        color = Color.White,
+                        color = colors.textoPrimario,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     )
 
                     Text(
                         text = "Cultura e tradição do povo nordestino",
-                        color = Color.LightGray,
+                        color = colors.textoSecundario,
                         fontSize = 13.sp
                     )
                 }
@@ -133,12 +137,13 @@ fun HistoriaScreen(
 
 @Composable
 private fun HistoriaSecao(titulo: String, conteudo: String) {
+    val colors = LocalAppColors.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp)
             .clip(RoundedCornerShape(18.dp))
-            .background(Color(0xFF101826))
+            .background(colors.card)
             .padding(horizontal = 18.dp, vertical = 16.dp)
     ) {
         Text(
@@ -152,7 +157,7 @@ private fun HistoriaSecao(titulo: String, conteudo: String) {
 
         Text(
             text = conteudo,
-            color = Color.White.copy(alpha = 0.9f),
+            color = colors.textoPrimario.copy(alpha = 0.9f),
             fontSize = 14.sp,
             lineHeight = 22.sp
         )

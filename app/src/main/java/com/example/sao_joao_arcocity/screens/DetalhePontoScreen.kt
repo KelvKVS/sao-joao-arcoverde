@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.sao_joao_arcocity.R
+import com.example.sao_joao_arcocity.ui.theme.LocalAppColors
 import com.example.sao_joao_arcocity.ui.theme.Sao_joao_arcocityTheme
 
 @Composable
@@ -34,15 +36,17 @@ fun DetalhePontoScreen(
     onIrLive: () -> Unit,
     onVerMapa: () -> Unit
 ) {
+    val colors = LocalAppColors.current
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF05080C))
+            .background(colors.fundo)
     ) {
         Image(
             painter = painterResource(id = R.drawable.fundohome),
             contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().alpha(colors.imagemFundoAlpha),
             contentScale = ContentScale.Crop
         )
 
@@ -63,10 +67,8 @@ fun DetalhePontoScreen(
                     modifier = Modifier
                         .size(42.dp)
                         .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.08f))
-                        .clickable {
-                            onVoltar()
-                        },
+                        .background(colors.card)
+                        .clickable { onVoltar() },
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
@@ -78,7 +80,7 @@ fun DetalhePontoScreen(
 
                 Text(
                     text = "♡",
-                    color = Color.White,
+                    color = colors.textoPrimario,
                     fontSize = 28.sp
                 )
             }
@@ -104,7 +106,7 @@ fun DetalhePontoScreen(
 
             Text(
                 text = ponto.nome,
-                color = Color.White,
+                color = colors.textoPrimario,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -131,7 +133,7 @@ fun DetalhePontoScreen(
 
             Text(
                 text = ponto.descricao,
-                color = Color.White,
+                color = colors.textoPrimario,
                 fontSize = 14.sp
             )
 
@@ -139,7 +141,7 @@ fun DetalhePontoScreen(
 
             Text(
                 text = "📍 ${ponto.endereco}",
-                color = Color.LightGray,
+                color = colors.textoSecundario,
                 fontSize = 13.sp
             )
 
@@ -154,9 +156,7 @@ fun DetalhePontoScreen(
             Spacer(modifier = Modifier.height(18.dp))
 
             Button(
-                onClick = {
-                    onVerMapa()
-                },
+                onClick = { onVerMapa() },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFFFC107)
                 ),
@@ -168,7 +168,6 @@ fun DetalhePontoScreen(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
                     Image(
                         painter = painterResource(id = R.drawable.locationbutton),
                         contentDescription = null,
@@ -192,14 +191,14 @@ fun DetalhePontoScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(1.dp)
-                    .background(Color.White.copy(alpha = 0.25f))
+                    .background(colors.divisor)
             )
 
             Spacer(modifier = Modifier.height(14.dp))
 
             Text(
                 text = "Fotos",
-                color = Color.White,
+                color = colors.textoPrimario,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold
             )
@@ -238,41 +237,28 @@ fun DetalhePontoScreen(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun DetalhePontoPreview() {
-
     Sao_joao_arcocityTheme {
-
         DetalhePontoScreen(
-
             ponto = PontoCidade(
-
                 nome = "Só delícias",
                 categoria = "Alimentação",
                 descricao = "Lanches e diversidade!",
                 endereco = "Av. Severiano José Freire, 411 - Centro",
                 horario = "22:00",
-
                 icone = R.drawable.food,
-
                 cor = Color(0xFFFFC107),
-
                 fotos = listOf(
                     "https://images.unsplash.com/photo-1504674900247-0877df9cc836",
                     "https://images.unsplash.com/photo-1555939594-58d7cb561ad1",
                     "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38"
                 ),
-
                 latitude = -8.4186,
                 longitude = -37.0538
             ),
-
             onVoltar = {},
-
             onIrHome = {},
-
             onIrProgramacao = {},
-
             onIrLive = {},
-
             onVerMapa = {}
         )
     }
