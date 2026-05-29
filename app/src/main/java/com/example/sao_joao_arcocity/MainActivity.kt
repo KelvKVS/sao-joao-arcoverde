@@ -15,6 +15,7 @@ import com.example.sao_joao_arcocity.helpers.criarCanalNotificacao
 import com.example.sao_joao_arcocity.screens.DetalhePontoScreen
 import com.example.sao_joao_arcocity.screens.HistoriaScreen
 import com.example.sao_joao_arcocity.screens.HomeScreen
+import com.example.sao_joao_arcocity.screens.IncidenteScreen
 import com.example.sao_joao_arcocity.screens.LiveScreen
 import com.example.sao_joao_arcocity.screens.LoginScreen
 import com.example.sao_joao_arcocity.screens.PontoCidade
@@ -68,9 +69,9 @@ fun App() {
         mutableStateOf(if (nomeUsuario.isNotBlank()) "home" else "login")
     }
 
-    var pontoSelecionado by remember {
-        mutableStateOf<PontoCidade?>(null)
-    }
+    var pontoSelecionado by remember { mutableStateOf<PontoCidade?>(null) }
+    var incidentePontoNome by remember { mutableStateOf("") }
+    var incidentePontoEndereco by remember { mutableStateOf("") }
 
     var isDark by remember { mutableStateOf(true) }
     val cores = if (isDark) TemaEscuro else TemaClaro
@@ -86,7 +87,12 @@ fun App() {
                     onIrPontos = { tela = "pontos" },
                     onIrSobre = { tela = "sobre" },
                     onIrHistoria = { tela = "historia" },
-                    onToggleTema = { isDark = !isDark }
+                    onToggleTema = { isDark = !isDark },
+                    onIrReportarIncidente = {
+                        incidentePontoNome = ""
+                        incidentePontoEndereco = ""
+                        tela = "incidente"
+                    }
                 )
             }
 
@@ -95,6 +101,7 @@ fun App() {
                     onIrHome = { tela = "home" },
                     onIrLive = { tela = "live" },
                     onIrPontos = { tela = "pontos" },
+                    onIrSobre = { tela = "sobre" }
                 )
             }
 
@@ -103,6 +110,7 @@ fun App() {
                     onIrHome = { tela = "home" },
                     onIrProgramacao = { tela = "programacao" },
                     onIrPontos = { tela = "pontos" },
+                    onIrSobre = { tela = "sobre" }
                 )
             }
 
@@ -114,7 +122,8 @@ fun App() {
                     onAbrirDetalhe = { ponto ->
                         pontoSelecionado = ponto
                         tela = "detalhePonto"
-                    }
+                    },
+                    onIrSobre = { tela = "sobre" }
                 )
             }
 
@@ -126,7 +135,13 @@ fun App() {
                         onIrHome = { tela = "home" },
                         onIrProgramacao = { tela = "programacao" },
                         onIrLive = { tela = "live" },
-                        onVerMapa = { tela = "rotaMapa" }
+                        onVerMapa = { tela = "rotaMapa" },
+                        onIrSobre = { tela = "sobre" },
+                        onIrReportarIncidente = {
+                            incidentePontoNome = ponto.nome
+                            incidentePontoEndereco = ponto.endereco
+                            tela = "incidente"
+                        }
                     )
                 }
             }
@@ -156,6 +171,14 @@ fun App() {
                     onIrLive = { tela = "live" },
                     onIrPontos = { tela = "pontos" },
                     onIrSobre = { tela = "sobre" }
+                )
+            }
+
+            "incidente" -> {
+                IncidenteScreen(
+                    onVoltar = { tela = if (incidentePontoNome.isBlank()) "home" else "detalhePonto" },
+                    pontoNome = incidentePontoNome,
+                    pontoEndereco = incidentePontoEndereco
                 )
             }
 

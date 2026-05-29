@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sao_joao_arcocity.R
+import com.example.sao_joao_arcocity.models.AlertaResponse
 import com.example.sao_joao_arcocity.models.BannerResponse
 import com.example.sao_joao_arcocity.models.ProgramacaoResponse
 import com.example.sao_joao_arcocity.network.RetrofitInstance
@@ -58,7 +59,8 @@ fun HomeScreen(
     onIrPontos: () -> Unit,
     onIrSobre: () -> Unit,
     onIrHistoria: () -> Unit = {},
-    onToggleTema: () -> Unit = {}
+    onToggleTema: () -> Unit = {},
+    onIrReportarIncidente: () -> Unit = {}
 ) {
     val colors = LocalAppColors.current
 
@@ -72,6 +74,7 @@ fun HomeScreen(
     var diaSelecionado by remember { mutableStateOf("21 JUN") }
     var banners by remember { mutableStateOf<List<BannerHome>>(emptyList()) }
     var programacoes by remember { mutableStateOf<List<ProgramacaoResponse>>(emptyList()) }
+    var alertas by remember { mutableStateOf<List<AlertaResponse>>(emptyList()) }
 
     LaunchedEffect(Unit) {
         try {
@@ -90,6 +93,11 @@ fun HomeScreen(
             programacoes = RetrofitInstance.api.buscarProgramacoes()
         } catch (e: Exception) {
             // mantém lista vazia
+        }
+        try {
+            alertas = RetrofitInstance.api.buscarAlertasAtivos()
+        } catch (e: Exception) {
+            // alertas indisponíveis não são críticos
         }
     }
 
@@ -156,6 +164,17 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF4A1010))
+                            .clickable { onIrReportarIncidente() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "!", color = Color(0xFFEF5350), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    }
+
                     // Botão de trocar tema
                     Box(
                         modifier = Modifier
@@ -178,6 +197,31 @@ fun HomeScreen(
                         colorFilter = if (!colors.isDark)
                             ColorFilter.tint(colors.textoPrimario) else null
                     )
+                }
+            }
+
+            if (alertas.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(10.dp))
+                alertas.forEach { alerta ->
+                    val corAlerta = when (alerta.tipo) {
+                        "urgente" -> Color(0xFFB71C1C)
+                        "aviso"   -> Color(0xFFF57F17)
+                        else      -> Color(0xFF0D47A1)
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 3.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(corAlerta.copy(alpha = 0.15f))
+                            .border(1.dp, corAlerta.copy(alpha = 0.5f), RoundedCornerShape(10.dp))
+                            .padding(horizontal = 14.dp, vertical = 10.dp)
+                    ) {
+                        Column {
+                            Text(text = alerta.titulo, color = corAlerta, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            Text(text = alerta.mensagem, color = colors.textoPrimario, fontSize = 12.sp)
+                        }
+                    }
                 }
             }
 
@@ -422,7 +466,7 @@ fun HomeScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Card História do São João
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
@@ -498,10 +542,10 @@ fun HomeScreen(
             modifier = Modifier.align(Alignment.BottomCenter),
             telaAtual = "home",
             onHomeClick = {},
-            onProgramacaoClick = { onIrProgramacao() },
-            onLiveClick = { onIrLive() },
-            onpontosClick = { onIrPontos() },
-            onSobreClick = { onIrSobre() }
+            onProgramacaoClick = onIrProgramacao,
+            onLiveClick = onIrLive,
+            onpontosClick = onIrPontos,
+            onSobreClick = onIrSobre
         )
     }
 }
@@ -547,11 +591,11 @@ fun BottomBar(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            BottomItem(icon = R.drawable.home,     title = "Home",       ativo = telaAtual == "home",       onClick = onHomeClick)
+            BottomItem(icon = R.drawable.home,     title = "Home",        ativo = telaAtual == "home",        onClick = onHomeClick)
             BottomItem(icon = R.drawable.calendar, title = "Programação", ativo = telaAtual == "programacao", onClick = onProgramacaoClick)
-            BottomItem(icon = R.drawable.live,     title = "Live",       ativo = telaAtual == "live",       onClick = onLiveClick)
-            BottomItem(icon = R.drawable.location, title = "Pontos",     ativo = telaAtual == "pontos",     onClick = onpontosClick)
-            BottomItem(icon = R.drawable.info,     title = "Sobre",      ativo = telaAtual == "sobre",      onClick = onSobreClick)
+            BottomItem(icon = R.drawable.live,     title = "Live",        ativo = telaAtual == "live",        onClick = onLiveClick)
+            BottomItem(icon = R.drawable.location, title = "Pontos",      ativo = telaAtual == "pontos",      onClick = onpontosClick)
+            BottomItem(icon = R.drawable.info,     title = "Sobre",       ativo = telaAtual == "sobre",       onClick = onSobreClick)
         }
     }
 }

@@ -34,7 +34,9 @@ fun DetalhePontoScreen(
     onIrHome: () -> Unit,
     onIrProgramacao: () -> Unit,
     onIrLive: () -> Unit,
-    onVerMapa: () -> Unit
+    onVerMapa: () -> Unit,
+    onIrSobre: () -> Unit = {},
+    onIrReportarIncidente: () -> Unit = {}
 ) {
     val colors = LocalAppColors.current
 
@@ -222,6 +224,26 @@ fun DetalhePontoScreen(
             }
         }
 
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 90.dp, start = 20.dp, end = 20.dp)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color(0xFF4A1010))
+                .clickable { onIrReportarIncidente() }
+                .padding(horizontal = 16.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Reportar problema neste local",
+                color = Color(0xFFEF5350),
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
         BottomBar(
             modifier = Modifier.align(Alignment.BottomCenter),
             telaAtual = "pontos",
@@ -229,7 +251,7 @@ fun DetalhePontoScreen(
             onProgramacaoClick = onIrProgramacao,
             onLiveClick = onIrLive,
             onpontosClick = onVoltar,
-            onSobreClick = {}
+            onSobreClick = onIrSobre
         )
     }
 }

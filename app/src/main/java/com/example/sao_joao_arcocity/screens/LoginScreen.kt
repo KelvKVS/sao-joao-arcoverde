@@ -23,27 +23,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sao_joao_arcocity.R
-import com.example.sao_joao_arcocity.ui.theme.LocalAppColors
 import com.example.sao_joao_arcocity.ui.theme.Sao_joao_arcocityTheme
 
 @Composable
-fun LoginScreen(
-    onEntrar: (String) -> Unit
-) {
-    val colors = LocalAppColors.current
+fun LoginScreen(onEntrar: (String) -> Unit) {
     var nome by remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF0B0F14),
-                        Color(0xFF05080C)
-                    )
-                )
-            )
+            .background(Brush.verticalGradient(listOf(Color(0xFF0B0F14), Color(0xFF05080C))))
     ) {
         Image(
             painter = painterResource(id = R.drawable.fundo),
@@ -57,83 +46,64 @@ fun LoginScreen(
                 .fillMaxSize()
                 .padding(horizontal = 30.dp)
                 .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(120.dp))
 
             Image(
                 painter = painterResource(id = R.drawable.logo),
                 contentDescription = "Logo São João",
-                modifier = Modifier
-                    .width(290.dp)
-                    .offset(y = (-70).dp)
+                modifier = Modifier.width(250.dp)
             )
 
-            Spacer(modifier = Modifier.height(80.dp))
+            Spacer(modifier = Modifier.height(48.dp))
 
             Text(
-                text = "Para começar, conta pra gente\nqual é seu nome:",
+                text = "Qual é seu nome?",
                 color = Color.White,
-                fontSize = 18.sp,
+                fontSize = 16.sp,
                 modifier = Modifier.align(Alignment.Start)
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             BasicTextField(
                 value = nome,
                 onValueChange = { nome = it },
-                textStyle = TextStyle(
-                    color = Color.White,
-                    fontSize = 18.sp
-                ),
+                textStyle = TextStyle(color = Color.White, fontSize = 18.sp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(
-                        Color(0xFF1A1F25).copy(alpha = 0.85f),
-                        RoundedCornerShape(14.dp)
-                    )
+                    .background(Color(0xFF1A1F25).copy(alpha = 0.85f), RoundedCornerShape(14.dp))
                     .padding(18.dp),
                 decorationBox = { innerTextField ->
-                    if (nome.isEmpty()) {
-                        Text(
-                            text = "Seu nome",
-                            color = Color.Gray,
-                            fontSize = 18.sp
-                        )
-                    }
+                    if (nome.isEmpty()) Text(text = "Seu nome", color = Color.Gray, fontSize = 18.sp)
                     innerTextField()
                 }
             )
 
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             Button(
-                onClick = { onEntrar(nome) },
+                onClick = { onEntrar(nome.trim().ifBlank { "usuario" }) },
+                enabled = nome.isNotBlank(),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFFC107)
+                    containerColor = Color(0xFFFFC107),
+                    disabledContainerColor = Color(0xFF5A4B1A)
                 ),
                 shape = RoundedCornerShape(14.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(58.dp)
             ) {
-                Text(
-                    text = "Entrar",
-                    color = Color.Black,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Text(text = "Entrar", color = Color.Black, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
+
+            Spacer(modifier = Modifier.height(40.dp))
         }
     }
 }
 
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun LoginScreenPreview() {
     Sao_joao_arcocityTheme {

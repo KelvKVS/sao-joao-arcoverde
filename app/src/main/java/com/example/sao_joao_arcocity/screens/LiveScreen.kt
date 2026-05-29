@@ -44,7 +44,8 @@ data class LiveEvento(
 fun LiveScreen(
     onIrHome: () -> Unit,
     onIrProgramacao: () -> Unit,
-    onIrPontos: () -> Unit
+    onIrPontos: () -> Unit,
+    onIrSobre: () -> Unit
 ) {
     val colors = LocalAppColors.current
     val context = LocalContext.current
@@ -277,7 +278,7 @@ fun LiveScreen(
             onProgramacaoClick = onIrProgramacao,
             onLiveClick = {},
             onpontosClick = onIrPontos,
-            onSobreClick = {}
+            onSobreClick = onIrSobre
         )
     }
 }
@@ -309,7 +310,8 @@ fun LivePreview() {
         LiveScreen(
             onIrHome = {},
             onIrProgramacao = {},
-            onIrPontos = {}
+            onIrPontos = {},
+            onIrSobre = {}
         )
     }
 }

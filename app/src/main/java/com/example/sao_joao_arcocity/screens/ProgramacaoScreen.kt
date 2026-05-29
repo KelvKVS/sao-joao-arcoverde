@@ -51,7 +51,8 @@ data class EventoProgramacao(
 fun ProgramacaoScreen(
     onIrHome: () -> Unit,
     onIrLive: () -> Unit,
-    onIrPontos: () -> Unit
+    onIrPontos: () -> Unit,
+    onIrSobre: () -> Unit
 ) {
     val colors = LocalAppColors.current
     val context = LocalContext.current
@@ -339,7 +340,7 @@ fun ProgramacaoScreen(
             onProgramacaoClick = {},
             onLiveClick = onIrLive,
             onpontosClick = onIrPontos,
-            onSobreClick = {}
+            onSobreClick = onIrSobre
         )
     }
 }
@@ -375,7 +376,8 @@ fun ProgramacaoPreview() {
         ProgramacaoScreen(
             onIrHome = {},
             onIrLive = {},
-            onIrPontos = {}
+            onIrPontos = {},
+            onIrSobre = {}
         )
     }
 }

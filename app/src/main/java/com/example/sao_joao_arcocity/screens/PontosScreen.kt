@@ -51,7 +51,8 @@ fun PontosScreen(
     onIrHome: () -> Unit,
     onIrProgramacao: () -> Unit,
     onIrLive: () -> Unit,
-    onAbrirDetalhe: (PontoCidade) -> Unit
+    onAbrirDetalhe: (PontoCidade) -> Unit,
+    onIrSobre: () -> Unit
 ) {
     val colors = LocalAppColors.current
 
@@ -327,7 +328,7 @@ fun PontosScreen(
             onProgramacaoClick = onIrProgramacao,
             onLiveClick = onIrLive,
             onpontosClick = {},
-            onSobreClick = {}
+            onSobreClick = onIrSobre
         )
     }
 }
@@ -405,7 +406,8 @@ fun PontosPreview() {
             onIrHome = {},
             onIrProgramacao = {},
             onIrLive = {},
-            onAbrirDetalhe = {}
+            onAbrirDetalhe = {},
+            onIrSobre = {}
         )
     }
 }
