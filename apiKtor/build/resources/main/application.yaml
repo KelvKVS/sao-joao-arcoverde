@@ -12,5 +12,5 @@ ktor:
 mongo:
   # Cole a sua string de conexão (Connection String) do MongoDB Cloud aqui.
   # Exemplo: mongodb+srv://<usuario>:<senha>@cluster0...
-  uri: ${MONGO_URI:mongodb+srv://jerfessonmelo123:SaoJoaoArcoverde2026@saojoaoarcoverde.d3ncrmp.mongodb.net/?appName=SaoJoaoArcoverde}
+  uri: ${MONGO_URI:mongodb+srv://jerfessonmelo123:SaoJoao2026@saojoaoarcoverde.d3ncrmp.mongodb.net/?appName=SaoJoaoArcoverde}
   database: sao_joao_arcoverde
