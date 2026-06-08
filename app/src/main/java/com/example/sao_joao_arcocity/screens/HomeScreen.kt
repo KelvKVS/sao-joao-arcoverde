@@ -29,7 +29,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
 import com.example.sao_joao_arcocity.R
+import com.example.sao_joao_arcocity.cache.LocalCache
 import com.example.sao_joao_arcocity.models.AlertaResponse
 import com.example.sao_joao_arcocity.models.BannerResponse
 import com.example.sao_joao_arcocity.models.ProgramacaoResponse
@@ -63,6 +65,7 @@ fun HomeScreen(
     onIrReportarIncidente: () -> Unit = {}
 ) {
     val colors = LocalAppColors.current
+    val context = LocalContext.current
 
     val dias = listOf(
         DiaEvento("21 JUN", "Sexta", true),
@@ -79,25 +82,26 @@ fun HomeScreen(
     LaunchedEffect(Unit) {
         try {
             val resposta = RetrofitInstance.api.buscarBanners()
+            LocalCache.salvar(context, "banners.json", resposta)
             banners = resposta.map { it.toBannerHome() }
         } catch (e: Exception) {
-            banners = listOf(
-                BannerHome(
-                    titulo = "São João Arco City",
-                    subtitulo = "O maior São João da região!",
-                    imagem = R.drawable.banner
-                )
-            )
+            val cache = LocalCache.carregar<List<BannerResponse>>(context, "banners.json")
+            banners = if (cache != null) cache.map { it.toBannerHome() }
+            else listOf(BannerHome("São João Arco City", "O maior São João da região!", R.drawable.banner))
         }
         try {
-            programacoes = RetrofitInstance.api.buscarProgramacoes()
+            val resposta = RetrofitInstance.api.buscarProgramacoes()
+            LocalCache.salvar(context, "programacoes.json", resposta)
+            programacoes = resposta
         } catch (e: Exception) {
-            // mantém lista vazia
+            programacoes = LocalCache.carregar<List<ProgramacaoResponse>>(context, "programacoes.json") ?: emptyList()
         }
         try {
-            alertas = RetrofitInstance.api.buscarAlertasAtivos()
+            val resposta = RetrofitInstance.api.buscarAlertasAtivos()
+            LocalCache.salvar(context, "alertas.json", resposta)
+            alertas = resposta
         } catch (e: Exception) {
-            // alertas indisponíveis não são críticos
+            alertas = LocalCache.carregar<List<AlertaResponse>>(context, "alertas.json") ?: emptyList()
         }
     }
 

@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sao_joao_arcocity.R
+import com.example.sao_joao_arcocity.cache.LocalCache
 import com.example.sao_joao_arcocity.models.LiveResponse
 import com.example.sao_joao_arcocity.models.ProgramacaoResponse
 import com.example.sao_joao_arcocity.network.RetrofitInstance
@@ -57,17 +58,24 @@ fun LiveScreen(
 
     LaunchedEffect(Unit) {
         try {
-            live = RetrofitInstance.api.buscarLive()
+            val liveResposta = RetrofitInstance.api.buscarLive()
+            LocalCache.salvar(context, "live.json", liveResposta)
+            live = liveResposta
 
-            eventos = RetrofitInstance.api.buscarProgramacoes()
-                .map { it.toLiveEvento() }
-                .take(3)
-
-            carregando = false
+            val progResposta = RetrofitInstance.api.buscarProgramacoes()
+            LocalCache.salvar(context, "programacoes.json", progResposta)
+            eventos = progResposta.map { it.toLiveEvento() }.take(3)
         } catch (e: Exception) {
-            erro = e.message
-            carregando = false
+            if (live == null) {
+                live = LocalCache.carregar<LiveResponse>(context, "live.json")
+            }
+            if (eventos.isEmpty()) {
+                eventos = (LocalCache.carregar<List<ProgramacaoResponse>>(context, "programacoes.json") ?: emptyList())
+                    .map { it.toLiveEvento() }.take(3)
+            }
+            if (live == null && eventos.isEmpty()) erro = e.message
         }
+        carregando = false
     }
 
     Box(

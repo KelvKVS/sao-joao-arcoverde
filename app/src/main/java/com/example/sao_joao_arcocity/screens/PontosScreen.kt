@@ -25,7 +25,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
 import com.example.sao_joao_arcocity.R
+import com.example.sao_joao_arcocity.cache.LocalCache
 import com.example.sao_joao_arcocity.models.PontoResponse
 import com.example.sao_joao_arcocity.network.RetrofitInstance
 import com.example.sao_joao_arcocity.ui.theme.LocalAppColors
@@ -55,6 +57,7 @@ fun PontosScreen(
     onIrSobre: () -> Unit
 ) {
     val colors = LocalAppColors.current
+    val context = LocalContext.current
 
     var pontos by remember { mutableStateOf<List<PontoCidade>>(emptyList()) }
     var carregando by remember { mutableStateOf(true) }
@@ -67,12 +70,17 @@ fun PontosScreen(
     LaunchedEffect(Unit) {
         try {
             val resposta = RetrofitInstance.api.buscarPontos()
+            LocalCache.salvar(context, "pontos.json", resposta)
             pontos = resposta.map { it.toPontoCidade() }
-            carregando = false
         } catch (e: Exception) {
-            erro = e.message
-            carregando = false
+            val cache = LocalCache.carregar<List<PontoResponse>>(context, "pontos.json")
+            if (cache != null) {
+                pontos = cache.map { it.toPontoCidade() }
+            } else {
+                erro = "Sem conexão e sem dados em cache."
+            }
         }
+        carregando = false
     }
 
     val tipoApi = if (tipoSelecionado == "Turísticos") "turistico" else "servico"

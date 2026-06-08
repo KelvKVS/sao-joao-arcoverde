@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sao_joao_arcocity.R
+import com.example.sao_joao_arcocity.cache.LocalCache
 import com.example.sao_joao_arcocity.helpers.reagendarFavoritos
 import com.example.sao_joao_arcocity.models.ProgramacaoResponse
 import com.example.sao_joao_arcocity.network.RetrofitInstance
@@ -70,12 +71,17 @@ fun ProgramacaoScreen(
     LaunchedEffect(Unit) {
         try {
             val resposta = RetrofitInstance.api.buscarProgramacoes()
+            LocalCache.salvar(context, "programacoes.json", resposta)
             eventos = resposta.map { it.toEventoProgramacao() }
-            carregando = false
         } catch (e: Exception) {
-            erro = e.message
-            carregando = false
+            val cache = LocalCache.carregar<List<ProgramacaoResponse>>(context, "programacoes.json")
+            if (cache != null) {
+                eventos = cache.map { it.toEventoProgramacao() }
+            } else {
+                erro = "Sem conexão e sem dados em cache."
+            }
         }
+        carregando = false
     }
 
     val dias = listOf(

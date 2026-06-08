@@ -1,6 +1,8 @@
 package com.example.sao_joao_arcocity.screens
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,6 +26,13 @@ import com.example.sao_joao_arcocity.models.IncidenteRequest
 import com.example.sao_joao_arcocity.network.RetrofitInstance
 import com.example.sao_joao_arcocity.ui.theme.LocalAppColors
 import kotlinx.coroutines.launch
+
+private fun isOnline(context: Context): Boolean {
+    val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val network = cm.activeNetwork ?: return false
+    val caps = cm.getNetworkCapabilities(network) ?: return false
+    return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+}
 
 private val Vermelho = Color(0xFFEF5350)
 private val VermelhoEscuro = Color(0xFF4A1010)
@@ -55,6 +64,7 @@ fun IncidenteScreen(
     val prefs = remember { context.getSharedPreferences("SaoJoaoPrefs", Context.MODE_PRIVATE) }
     val userId = remember { prefs.getString("nomeUsuario", "usuario") ?: "usuario" }
     val scope = rememberCoroutineScope()
+    val online = remember { isOnline(context) }
 
     var tipoSelecionado by remember { mutableStateOf(tiposIncidente[0]) }
     var descricao by remember { mutableStateOf("") }
@@ -90,6 +100,23 @@ fun IncidenteScreen(
             if (pontoNome.isNotBlank()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(text = "Local: $pontoNome", color = colors.textoSecundario, fontSize = 13.sp)
+            }
+
+            if (!online) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFF4A1010))
+                        .padding(14.dp)
+                ) {
+                    Text(
+                        text = "Sem conexão com a internet. Reportar incidentes requer conexão.",
+                        color = Vermelho,
+                        fontSize = 13.sp
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -213,8 +240,8 @@ fun IncidenteScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(14.dp))
-                    .background(if (enviando || endereco.isBlank()) Color.Gray else Vermelho)
-                    .clickable(enabled = !enviando && endereco.isNotBlank()) {
+                    .background(if (enviando || endereco.isBlank() || !online) Color.Gray else Vermelho)
+                    .clickable(enabled = !enviando && endereco.isNotBlank() && online) {
                         enviando = true
                         scope.launch {
                             try {

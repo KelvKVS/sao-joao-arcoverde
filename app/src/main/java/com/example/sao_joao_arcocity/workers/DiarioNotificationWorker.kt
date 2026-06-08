@@ -6,6 +6,8 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.sao_joao_arcocity.R
+import com.example.sao_joao_arcocity.cache.LocalCache
+import com.example.sao_joao_arcocity.models.ProgramacaoResponse
 import com.example.sao_joao_arcocity.network.RetrofitInstance
 
 class DiarioNotificationWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
@@ -15,11 +17,17 @@ class DiarioNotificationWorker(context: Context, params: WorkerParameters) : Cor
 
         val texto = try {
             val programacoes = RetrofitInstance.api.buscarProgramacoes()
+            LocalCache.salvar(applicationContext, "programacoes.json", programacoes)
             val doDia = programacoes.filter { it.dia == dia }
             if (doDia.isEmpty()) "Nenhum evento encontrado para hoje."
             else doDia.take(6).joinToString("\n") { "${it.horario}  ${it.titulo}" }
         } catch (e: Exception) {
-            "Abra o app para ver a programação de hoje!"
+            val cache = LocalCache.carregar<List<ProgramacaoResponse>>(applicationContext, "programacoes.json")
+            val doDia = cache?.filter { it.dia == dia }
+            if (!doDia.isNullOrEmpty())
+                doDia.take(6).joinToString("\n") { "${it.horario}  ${it.titulo}" }
+            else
+                "Abra o app para ver a programação de hoje!"
         }
 
         val notification = NotificationCompat.Builder(applicationContext, "saojoao_channel")
