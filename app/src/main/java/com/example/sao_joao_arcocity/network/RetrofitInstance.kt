@@ -7,20 +7,13 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitInstance {
 
-    // Atualize esta URL cada vez que reiniciar o ngrok
-    private const val BASE_URL = "https://stung-trembling-chihuahua.ngrok-free.dev/"
+    private const val BASE_URL = "https://sao-joao-arcoverde.onrender.com/"
 
     val api: ApiService by lazy {
         val client = OkHttpClient.Builder()
             .addInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
             })
-            .addInterceptor { chain ->
-                val request = chain.request().newBuilder()
-                    .addHeader("ngrok-skip-browser-warning", "true")
-                    .build()
-                chain.proceed(request)
-            }
             .build()
 
         Retrofit.Builder()
